@@ -38,40 +38,42 @@ class WishlistController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function add(Request $request)
-    {
-        $settings = Setting::first();
+  public function add(Request $request)
+{
+    $settings = Setting::first();
 
-        if (!$settings || !$settings->wishlist) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Wishlist feature is disabled.',
-            ]);
-        }
-
-        $product = Product::findOrFail($request->product_id);
-
-        $exists = Wishlist::current()
-            ->where('product_id', $product->id)
-            ->exists();
-
-        if ($exists) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Product is already in your wishlist.',
-                'wishlist_count' => Wishlist::current()->count(),
-            ]);
-        }
-
-        Wishlist::addProduct($product);
-
+    if (!$settings || !$settings->wishlist) {
         return response()->json([
-            'status' => true,
-            'message' => 'Product added to wishlist successfully.',
+            'status' => false,
+            'message' => 'Wishlist feature is disabled.',
+        ]);
+    }
+
+    $product = Product::findOrFail($request->product_id);
+
+    $exists = Wishlist::current()
+        ->where('product_id', $product->id)
+        ->exists();
+
+    if ($exists) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Product is already in your wishlist.',
             'wishlist_count' => Wishlist::current()->count(),
         ]);
-
     }
+
+    Wishlist::addProduct($product);
+
+    $trackingEvents = \App\Services\Tracking\PixelTracker::addToWishlist($product); // 👈 new
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Product added to wishlist successfully.',
+        'wishlist_count' => Wishlist::current()->count(),
+        'tracking_events' => $trackingEvents, // 👈 new
+    ]);
+}
 
 
     /*

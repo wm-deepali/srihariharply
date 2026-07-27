@@ -38,11 +38,16 @@
     <!-- Google Fonts: Cinzel for Luxury Headings -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
 
-    <!-- Custom CSS -->
+   <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+
+    @include('layouts.tracking-head')
+
 </head>
 
 <body>
+        @include('layouts.tracking-body-top')
+
     <div class="la-pavone-wrapper">
 
         <!-- 1. STATIC NAVBAR -->
@@ -116,24 +121,29 @@
                 </ul>
 
                 <div class="nav-icons">
-                    <button aria-label="Search">
-                        <img src="{{ asset('assets/images/menu_search.png')}}" alt="Search">
-                    </button>
+                    <!--<button aria-label="Search">-->
+                    <!--    <img src="{{ asset('assets/images/menu_search.png')}}" alt="Search">-->
+                    <!--</button>-->
+                    
+                    
+                  
                    <a href="{{ route('user.wishlist') }}" class="cart-icon" aria-label="Wishlist">
                         <img src="{{ asset('assets/images/menu_wishlist.png')}}" alt="Wishlist">
                           <span class="wishlist-count">
                             {{ $wishlistCount }}
                         </span>
                     </a>
-                    <a href="{{ route('user.login') }}" aria-label="Account">
-                        <img src="{{ asset('assets/images/menu_user.png')}}" alt="Account">
-                    </a>
+                   
                    <a href="{{ route('cart') }}" class="cart-icon" aria-label="Cart">
                         <img src="{{ asset('assets/images/menu_cart.png') }}" alt="Cart">
 
                         <span class="cart-count">
                             {{ $globalCartCount }}
                         </span>
+                    </a>
+                    
+                     <a href="{{ route('user.login') }}" aria-label="Account">
+                        <img src="{{ asset('assets/images/menu_user.png')}}" alt="Account">
                     </a>
                     <button class="mobile-nav-toggle" aria-label="Toggle Menu">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -166,24 +176,68 @@
                     </a>
                 @endif
             </div>
-            <div class="footer-bottom">
+       <div class="footer-bottom">
                 <div class="lp-container">
                     <div class="footer-links-row">
                         <span class="footer-copyright">&copy;2026, La Pavone</span>
                         <div class="footer-nav">
                             <a href="{{ route('about-us') }}" class="footer-link">About Us</a>
                             <a href="{{ route('contact-us') }}" class="footer-link">Contact Us</a>
+                             @php
+                            $defaultCourier = \App\Models\Courier::where('is_default', 1)
+                                ->where('is_active', 1)
+                                ->first();
+                        @endphp
+                        
                             <a href="{{ route('faqs') }}" class="footer-link">FAQs</a>
-                            <a href="{{ route('blogs') }}" class="footer-link">Blogs</a>
+                             @if($defaultCourier?->website_url)
+                                <a href="{{ $defaultCourier->website_url }}" target="_blank" rel="noopener noreferrer"
+                                    class="footer-link">
+                                    Track Order
+                                </a>
+                            @endif
+                            <!--<a href="{{ route('blogs') }}" class="">Blogs</a>-->
+                            
+                         
+                            
                             @foreach($footerPages as $page)
-                                <a href="{{ route('dynamic.page', \Illuminate\Support\Str::slug($page->page_name)) }}">
-                                    {{ $page->heading }}</a>
+                            <a href="{{ route('dynamic.page', \Illuminate\Support\Str::slug($page->page_name)) }}" class="footer-link">
+                                {{ $page->heading }}</a>
+                                
+                                
+                                
+                                   
+                         
                             @endforeach
+                            
+                            
+                            <!--   <div class="footer-dropdown">-->
+                               
+                            <!--             <a href="{{ route('blogs') }}" class="footer-dropdown-toggle" > <span>Blogs</span>  </a>-->
+                            <!--    <div class="footer-dropdown-menu">-->
+                            <!--        <a href="#" class="footer-dropdown-item">English</a>-->
+                            <!--        <a href="#" class="footer-dropdown-item">Hindi</a>-->
+                            <!--    </div>-->
+                            <!--</div>-->
+                            
+                <div class="footer-blog-dropdown">
+    <a href="javascript:void(0)" class="footer-blog-toggle">
+        <span>
+            Blogs
+            <i class="fa-solid fa-chevron-down"></i>
+        </span>
+    </a>
+
+    <div class="footer-blog-menu">
+        <a href="{{ route('blogs') }}" class="footer-blog-item">English</a>
+        <a href="{{ route('blogs') }}" class="footer-blog-item">Hindi</a>
+    </div>
+</div>
                         </div>
                     </div>
                     <div class="footer-address">
                         @if(!empty($general?->business_address))
-                            <p>{{ $general->business_address }}</p>
+                        <p>{{ $general->business_address }}</p>
                         @endif
                     </div>
                 </div>
@@ -262,6 +316,8 @@
     <!-- GSAP & ScrollTrigger -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+@include('layouts.tracking-body-bottom')
+
 </body>
 
 </html>

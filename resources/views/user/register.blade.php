@@ -194,6 +194,8 @@
             .then(r => r.json())
             .then(data => {
                 if (data.status) {
+                                fireTrackingEvents(data.tracking_events); // 👈 new
+
                     Swal.fire({ icon: 'success', title: 'Welcome', text: 'Logging you in...', timer: 1500, showConfirmButton: false })
                         .then(() => window.location.href = data.redirect);
                 } else {
@@ -223,6 +225,8 @@
             .then(r => r.json())
             .then(data => {
                 if (data.status) {
+                               fireTrackingEvents(data.tracking_events); // 👈 fixed: was "res", now "data"
+
                     Swal.fire({ icon: 'success', title: 'Registration Successful', text: data.message, timer: 1500, showConfirmButton: false })
                         .then(() => window.location.href = data.redirect);
                 } else {

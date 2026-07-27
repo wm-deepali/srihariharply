@@ -11,7 +11,7 @@
   <meta name="csrf-token" content="{{ csrf_token() }}" />
 
   <title>Admin Dashboard | La Pavone</title>
-<link rel="icon" type="image/png" href="{{ asset('assets/images/favicon-32x32.png') }}">
+<link rel="icon" type="image/png" href="{{ asset('assets/images/android-chrome-512x512.png') }}">
   <!--  <title>Krishna Chikan | @yield('title')</title> -->
 
 

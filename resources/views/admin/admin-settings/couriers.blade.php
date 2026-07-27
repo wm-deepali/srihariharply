@@ -77,6 +77,25 @@
 
                 </div>
 
+                <div class="toggle-row mt-3">
+
+                    <div>
+                        <div class="toggle-info-label">
+                            Default Courier
+                        </div>
+
+                        <div class="toggle-info-sub">
+                            This courier will be used for the Footer Track Order link.
+                        </div>
+                    </div>
+
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="courier_default" name="is_default">
+                        <span class="toggle-track"></span>
+                    </label>
+
+                </div>
+
                 <div style="margin-top:20px;">
                     <button type="submit" class="btn-primary-dash" id="courier_submit_btn">
                         <i class="fa-solid fa-floppy-disk"></i>
@@ -111,6 +130,7 @@
                             <th>Courier Name</th>
                             <th>Website</th>
                             <th width="100">Status</th>
+                            <th width="100">Default</th>
                             <th width="180">Action</th>
                         </tr>
                     </thead>
@@ -167,6 +187,22 @@
 
                                 <td>
 
+                                    @if($courier->is_default)
+
+                                        <span class="badge bg-primary">
+                                            Default
+                                        </span>
+
+                                    @else
+
+                                        -
+
+                                    @endif
+
+                                </td>
+
+                                <td>
+
                                     <button type="button" class="btn btn-sm btn-primary edit-courier-btn"
                                         data-id="{{ $courier->id }}" data-name="{{ $courier->name }}"
                                         data-url="{{ $courier->website_url }}" data-active="{{ $courier->is_active }}">
@@ -187,6 +223,7 @@
                                     </form>
 
                                 </td>
+
 
                             </tr>
 

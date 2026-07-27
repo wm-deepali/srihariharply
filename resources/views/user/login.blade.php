@@ -283,6 +283,7 @@
                             showConfirmButton: false
                         }).then(() => window.location.href = data.redirect);
                     } else if (data.status) {
+                         fireTrackingEvents(data.tracking_events); // 👈 new
                         // Existing user: logged in
                         Swal.fire({ icon: 'success', title: 'Login Successful', text: 'Redirecting...', timer: 1500, showConfirmButton: false })
                             .then(() => window.location.href = data.redirect);
@@ -332,6 +333,8 @@
                 .then(r => r.json())
                 .then(data => {
                     if (data.status) {
+                                        fireTrackingEvents(data.tracking_events); // 👈 new
+
                         Swal.fire({ icon: 'success', title: 'Login Successful', text: 'Redirecting...', timer: 1500, showConfirmButton: false })
                             .then(() => window.location.href = data.redirect);
                     } else {
@@ -528,11 +531,14 @@
                             .then(r => r.json())
                             .then(guestData => {
                                 if (guestData.status) {
+                                    fireTrackingEvents(guestData.tracking_events); // 👈 new
                                     Swal.fire({ icon: 'success', title: 'Welcome!', text: 'Logging you in...', timer: 1500, showConfirmButton: false })
                                         .then(() => window.location.href = guestData.redirect);
                                 }
                             });
                     } else if (data.status) {
+                                        fireTrackingEvents(data.tracking_events); // 👈 new
+
                         // Existing user → seedha redirect
                         Swal.fire({ icon: 'success', title: 'Login Successful', text: 'Redirecting...', timer: 1500, showConfirmButton: false })
                             .then(() => window.location.href = data.redirect);

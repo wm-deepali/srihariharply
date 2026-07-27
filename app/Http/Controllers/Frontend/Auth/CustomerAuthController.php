@@ -172,58 +172,67 @@ class CustomerAuthController extends Controller
         $this->mergeGuestCart($customer, $guestSessionId);
         $this->mergeGuestWishlist($customer, $guestSessionId);
 
-        session()->forget(['register_mobile', 'register_otp', 'otp_verified']);
+       session()->forget(['register_mobile', 'register_otp', 'otp_verified']);
 
-        EmailDispatcher::send(
-            'welcome',
-            $customer->email,
-            [
-                '{customer_name}' => $customer->name,
-            ]
-        );
+    EmailDispatcher::send(
+        'welcome',
+        $customer->email,
+        [
+            '{customer_name}' => $customer->name,
+        ]
+    );
 
+    $trackingEvents = \App\Services\Tracking\PixelTracker::signUpEvent('email_password'); // 👈 new
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Registration successful.',
+        'redirect' => $this->intendedRedirect(),
+        'tracking_events' => $trackingEvents, // 👈 new
+    ]);
+    }
+
+  public function guestLogin(Request $request)
+{
+    if (!session('otp_verified')) {
         return response()->json([
-            'status' => true,
-            'message' => 'Registration successful.',
-            'redirect' => $this->intendedRedirect(),
+            'status' => false,
+            'message' => 'Please verify OTP first.',
         ]);
     }
 
-    public function guestLogin(Request $request)
-    {
-        if (!session('otp_verified')) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Please verify OTP first.',
-            ]);
-        }
+    $mobile = session('register_mobile');
 
-        $mobile = session('register_mobile');
+    $guestSessionId = session()->getId();
 
-        // ── Capture the guest session ID BEFORE Auth::login() regenerates it ──
-        $guestSessionId = session()->getId();
+    $customer = Customer::firstOrCreate(
+        ['mobile' => $mobile],
+        [
+            'name' => 'Guest User',
+            'email' => null,
+            'alternate_mobile' => '9999999999',
+            'password' => bcrypt(str()->random(10)),
+        ]
+    );
 
-        $customer = Customer::firstOrCreate(
-            ['mobile' => $mobile],
-            [
-                'name' => 'Guest User',
-                'email' => null,
-                'alternate_mobile' => '9999999999',
-                'password' => bcrypt(str()->random(10)),
-            ]
-        );
+    $isNewCustomer = $customer->wasRecentlyCreated; // 👈 new
 
-        Auth::guard('customer')->login($customer);
-        $this->mergeGuestCart($customer, $guestSessionId);
-        $this->mergeGuestWishlist($customer, $guestSessionId);
+    Auth::guard('customer')->login($customer);
+    $this->mergeGuestCart($customer, $guestSessionId);
+    $this->mergeGuestWishlist($customer, $guestSessionId);
 
-        session()->forget(['register_mobile', 'register_otp', 'otp_verified']);
+    session()->forget(['register_mobile', 'register_otp', 'otp_verified']);
 
-        return response()->json([
-            'status' => true,
-            'redirect' => $this->intendedRedirect(),
-        ]);
-    }
+    $trackingEvents = $isNewCustomer
+        ? \App\Services\Tracking\PixelTracker::signUpEvent('mobile_otp')
+        : \App\Services\Tracking\PixelTracker::loginEvent(); // 👈 new
+
+    return response()->json([
+        'status' => true,
+        'redirect' => $this->intendedRedirect(),
+        'tracking_events' => $trackingEvents, // 👈 new
+    ]);
+}
 
     // ──────────────────────────────────────────────────────────────────────────
     // LOGIN FLOW – Mobile OTP
@@ -294,65 +303,69 @@ class CustomerAuthController extends Controller
             ]);
         }
 
-        // ── Existing user: log them in ──────────────────────────────────────
-        $customer = Customer::where('mobile', session('login_mobile'))->first();
+       // ── Existing user: log them in ──────────────────────────────────────
+$customer = Customer::where('mobile', session('login_mobile'))->first();
 
-        if (!$customer) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Customer not found.',
-            ]);
-        }
+if (!$customer) {
+    return response()->json([
+        'status' => false,
+        'message' => 'Customer not found.',
+    ]);
+}
 
-        // ── Capture the guest session ID BEFORE Auth::login() regenerates it ──
-        $guestSessionId = session()->getId();
+$guestSessionId = session()->getId();
 
-        Auth::guard('customer')->login($customer);
-        $this->mergeGuestCart($customer, $guestSessionId);
-        $this->mergeGuestWishlist($customer, $guestSessionId);
+Auth::guard('customer')->login($customer);
+$this->mergeGuestCart($customer, $guestSessionId);
+$this->mergeGuestWishlist($customer, $guestSessionId);
 
-        session()->forget(['login_mobile', 'login_otp', 'login_is_new']);
+session()->forget(['login_mobile', 'login_otp', 'login_is_new']);
 
-        return response()->json([
-            'status' => true,
-            'redirect' => $this->intendedRedirect(),
-        ]);
+$trackingEvents = \App\Services\Tracking\PixelTracker::loginEvent(); // 👈 new
+
+return response()->json([
+    'status' => true,
+    'redirect' => $this->intendedRedirect(),
+    'tracking_events' => $trackingEvents, // 👈 new
+]);
     }
 
     // ──────────────────────────────────────────────────────────────────────────
     // LOGIN FLOW – Email + Password
     // ──────────────────────────────────────────────────────────────────────────
 
-    public function loginEmail(Request $request)
-    {
-        $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+   public function loginEmail(Request $request)
+{
+    $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
 
-        $customer = Customer::where('email', $request->email)->first();
+    $customer = Customer::where('email', $request->email)->first();
 
-        if (!$customer || !Hash::check($request->password, $customer->password)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Invalid email or password.',
-            ]);
-        }
-
-        // ── Capture the guest session ID BEFORE Auth::login() regenerates it ──
-        $guestSessionId = session()->getId();
-
-        Auth::guard('customer')->login($customer);
-        $this->mergeGuestCart($customer, $guestSessionId);
-        $this->mergeGuestWishlist($customer, $guestSessionId);
-
-        $request->session()->regenerate();
-
+    if (!$customer || !Hash::check($request->password, $customer->password)) {
         return response()->json([
-            'status' => true,
-            'redirect' => $this->intendedRedirect(),
+            'status' => false,
+            'message' => 'Invalid email or password.',
         ]);
     }
+
+    $guestSessionId = session()->getId();
+
+    Auth::guard('customer')->login($customer);
+    $this->mergeGuestCart($customer, $guestSessionId);
+    $this->mergeGuestWishlist($customer, $guestSessionId);
+
+    $request->session()->regenerate();
+
+    $trackingEvents = \App\Services\Tracking\PixelTracker::loginEvent(); // 👈 new
+
+    return response()->json([
+        'status' => true,
+        'redirect' => $this->intendedRedirect(),
+        'tracking_events' => $trackingEvents, // 👈 new
+    ]);
+}
 
     // ──────────────────────────────────────────────────────────────────────────
     // FORGOT PASSWORD FLOW
@@ -452,32 +465,39 @@ class CustomerAuthController extends Controller
         return Socialite::driver('google')->redirect();
     }
 
-    public function handleGoogleCallback()
-    {
-        $googleUser = Socialite::driver('google')->user();
+   public function handleGoogleCallback()
+{
+    $googleUser = Socialite::driver('google')->user();
 
-        $customer = Customer::firstOrCreate(
-            ['email' => $googleUser->email],
-            [
-                'name' => $googleUser->name,
-                'google_id' => $googleUser->id,
-                'avatar' => $googleUser->avatar,
-                'password' => bcrypt(str()->random(20)),
-                'mobile' => time(),
-                'alternate_mobile' => time() + 1,
-            ]
-        );
+    $customer = Customer::firstOrCreate(
+        ['email' => $googleUser->email],
+        [
+            'name' => $googleUser->name,
+            'google_id' => $googleUser->id,
+            'avatar' => $googleUser->avatar,
+            'password' => bcrypt(str()->random(20)),
+            'mobile' => time(),
+            'alternate_mobile' => time() + 1,
+        ]
+    );
 
-        // ── Capture the guest session ID BEFORE Auth::login() regenerates it ──
-        $guestSessionId = session()->getId();
+    $isNewCustomer = $customer->wasRecentlyCreated; // 👈 new
 
-        Auth::guard('customer')->login($customer);
-        $this->mergeGuestCart($customer, $guestSessionId);
-        $this->mergeGuestWishlist($customer, $guestSessionId);
+    $guestSessionId = session()->getId();
 
-        return redirect()->intended(route('home'));
+    Auth::guard('customer')->login($customer);
+    $this->mergeGuestCart($customer, $guestSessionId);
+    $this->mergeGuestWishlist($customer, $guestSessionId);
+
+    // 👇 new — flash for session-based tracking (like Lead event)
+    if ($isNewCustomer) {
+        session()->flash('fire_signup_event', 'google_oauth');
+    } else {
+        session()->flash('fire_login_event', true);
     }
 
+    return redirect()->intended(route('home'));
+}
     // ──────────────────────────────────────────────────────────────────────────
     // LOGOUT
     // ──────────────────────────────────────────────────────────────────────────

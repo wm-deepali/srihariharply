@@ -251,54 +251,55 @@ class FrontController extends Controller
     }
 
 
-    public function productDetail(Product $product)
-    {
-        // Abort if product is not active
-        abort_if(!$product->status, 404);
+   public function productDetail(Product $product)
+{
+    // Abort if product is not active
+    abort_if(!$product->status, 404);
 
-        // Load all image types
-        $product->load([
-            'images',
-            'category',
-            'subcategory',
-        ]);
+    // Load all image types
+    $product->load([
+        'images',
+        'category',
+        'subcategory',
+    ]);
 
-        // Similar products: same category, excluding current
-        $similarProducts = Product::with([
-            'images' => function ($q) {
-                $q->whereIn('image_type', ['default', 'hover']);
-            }
-        ])
-            // ->where('category_id', $product->category_id)
-            ->where('id', '!=', $product->id)
-            ->where('status', 1)
-            ->latest()
-            ->take(8)
-            ->get();
-
-        $faqs = Faq::where('show_on_product_page', 1)
-            ->where('status', 1)
-            ->get();
-
-        $cartItem = null;
-
-        if (auth('customer')->check()) {
-            $cart = \App\Models\Cart::where('user_id', auth('customer')->id())->first();
-
-            if ($cart) {
-                $cartItem = $cart->items()
-                    ->where('product_id', $product->id)
-                    ->first();
-            }
-        } else {
-            $sessionCart = session('cart.items', []);
-
-            $cartItem = collect($sessionCart)
-                ->firstWhere('product_id', $product->id);
+    // Similar products: same category, excluding current
+    $similarProducts = Product::with([
+        'images' => function ($q) {
+            $q->whereIn('image_type', ['default', 'hover']);
         }
+    ])
+        ->where('id', '!=', $product->id)
+        ->where('status', 1)
+        ->latest()
+        ->take(8)
+        ->get();
 
-        return view('front-pages.product-detail', compact('product', 'similarProducts', 'faqs', 'cartItem'));
+    $faqs = Faq::where('show_on_product_page', 1)
+        ->where('status', 1)
+        ->get();
+
+    $cartItem = null;
+
+    if (auth('customer')->check()) {
+        $cart = \App\Models\Cart::where('user_id', auth('customer')->id())->first();
+
+        if ($cart) {
+            $cartItem = $cart->items()
+                ->where('product_id', $product->id)
+                ->first();
+        }
+    } else {
+        $sessionCart = session('cart.items', []);
+
+        $cartItem = collect($sessionCart)
+            ->firstWhere('product_id', $product->id);
     }
+
+    $viewItemScript = \App\Services\Tracking\PixelTracker::viewItemScript($product); // 👈 new
+
+    return view('front-pages.product-detail', compact('product', 'similarProducts', 'faqs', 'cartItem', 'viewItemScript'));
+}
 
     public function faqs(Request $request)
     {
@@ -478,18 +479,19 @@ class FrontController extends Controller
                 ->withInput();
         }
 
-        ContactEnquiry::create([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
-            'mobile' => $request->mobile,
-            'message' => $request->message,
-        ]);
+       ContactEnquiry::create([
+    'first_name' => $request->first_name,
+    'last_name' => $request->last_name,
+    'email' => $request->email,
+    'mobile' => $request->mobile,
+    'message' => $request->message,
+]);
 
-        return redirect()->back()->with(
-            'success',
-            'Thank you! Your enquiry has been submitted successfully.'
-        );
+return redirect()->back()->with(
+    'success',
+    'Thank you! Your enquiry has been submitted successfully.'
+)->with('fire_lead_event', 'Contact Us Form'); // 👈 new
+
     }
 
 
@@ -531,16 +533,18 @@ class FrontController extends Controller
                 ->withInput();
         }
 
-        GeneralEnquiry::create([
-            'name' => $request->name,
-            'company' => $request->company,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'message' => $request->message,
-            'source' => $request->source,
-        ]);
+      GeneralEnquiry::create([
+    'name' => $request->name,
+    'company' => $request->company,
+    'email' => $request->email,
+    'phone' => $request->phone,
+    'message' => $request->message,
+    'source' => $request->source,
+]);
 
-        return back()->with('success_general', 'Enquiry submitted successfully!');
+return back()
+    ->with('success_general', 'Enquiry submitted successfully!')
+    ->with('fire_lead_event', 'General Enquiry Form'); // 👈 new
     }
 
 
@@ -596,28 +600,23 @@ class FrontController extends Controller
                 ->store('catalogues', 'public');
         }
 
-        SupplierEnquiry::create([
-            'name' => $request->name,
-            'company' => $request->company,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'category_id' => $request->category_id,
+       SupplierEnquiry::create([
+    'name' => $request->name,
+    'company' => $request->company,
+    'email' => $request->email,
+    'phone' => $request->phone,
+    'category_id' => $request->category_id,
+    'quantity' => $request->quantity,
+    'delivery_date' => $request->delivery_date,
+    'description' => $request->description,
+    'city' => $request->city,
+    'catalogue' => $filePath,
+]);
 
-            // NEW FORM FIELDS
-            'quantity' => $request->quantity,
-            'delivery_date' => $request->delivery_date,
-
-            // EXISTING
-            'description' => $request->description,
-            'city' => $request->city,
-
-            'catalogue' => $filePath,
-        ]);
-
-        return back()->with(
-            'success',
-            'Bulk enquiry submitted successfully!'
-        );
+return back()
+    ->with('success', 'Bulk enquiry submitted successfully!')
+    ->with('fire_lead_event', 'Bulk Enquiry Form'); // 👈 new
+    
     }
 
     public function occasions(Request $request)

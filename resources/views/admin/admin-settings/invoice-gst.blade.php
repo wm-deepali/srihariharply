@@ -39,7 +39,7 @@
                             <input type="file" id="imageInput" name="company_logo" accept="image/*">
                             <div class="upload-icon"><i class="fa fa-cloud-upload"></i></div>
                             <div class="upload-label">Upload Invoice Logo</div>
-                            <div class="upload-sub">PNG, JPG Â· recommended 300Ã—80px, will appear on PDF invoices</div>
+                            <div class="upload-sub">PNG, JPG ¡¤ recommended 300¡Á80px, will appear on PDF invoices</div>
                         </div>
                         {{-- Existing Logo --}}
                         @if(!empty($invoice_setting->company_logo))

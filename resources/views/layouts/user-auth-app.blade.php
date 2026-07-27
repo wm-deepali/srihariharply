@@ -142,24 +142,26 @@
 
 
                 <div class="nav-icons">
-                    <button aria-label="Search">
-                        <img src="{{ asset('assets/images/menu_search.png')}}" alt="Search">
-                    </button>
+                    <!--<button aria-label="Search">-->
+                    <!--    <img src="{{ asset('assets/images/menu_search.png')}}" alt="Search">-->
+                    <!--</button>-->
                      <a href="{{ route('user.wishlist') }}" class="cart-icon" aria-label="Wishlist">
                         <img src="{{ asset('assets/images/menu_wishlist.png')}}" alt="Wishlist">
                           <span class="wishlist-count">
                             {{ $wishlistCount }}
                         </span>
                     </a>
-                    <a href="{{ route('user.login') }}" aria-label="Account">
-                        <img src="{{ asset('assets/images/menu_user.png')}}" alt="Account">
-                    </a>
+                   
                   <a href="{{ route('cart') }}" class="cart-icon" aria-label="Cart">
                         <img src="{{ asset('assets/images/menu_cart.png') }}" alt="Cart">
 
                         <span class="cart-count">
                             {{ $globalCartCount }}
                         </span>
+                    </a>
+                    
+                     <a href="{{ route('user.login') }}" aria-label="Account">
+                        <img src="{{ asset('assets/images/menu_user.png')}}" alt="Account">
                     </a>
                     <button class="mobile-nav-toggle" aria-label="Toggle Menu">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -175,32 +177,112 @@
 
 
         @yield('content')
+   <!-- 9. FOOTER -->
+        <footer class="lp-footer">
+            <div class="footer-top">
+                @if($general?->facebook)
+                    <a href="{{ $general->facebook }}" target="_blank" class="footer-social-link" aria-label="Facebook">
+                        <i class="fa-brands fa-facebook-f"></i>
+                    </a>
+                @endif
 
-
-        <!-- 9. FOOTER -->
-        <!-- Simplified Custom Login Footer -->
-        <footer class="login-simple-footer">
-            <div class="lp-container">
-                <div class="footer-links-row">
-                    <span class="footer-copyright">&copy;2026, La Pavone</span>
-                    <div class="footer-nav">
-                        <a href="{{ route('about-us') }}" class="footer-link">About Us</a>
-                        <a href="{{ route('contact-us') }}" class="footer-link">Contact Us</a>
-                        <a href="{{ route('faqs') }}" class="footer-link">FAQs</a>
-                        <a href="{{ route('blogs') }}" class="footer-link">Blogs</a>
-                        @foreach($footerPages as $page)
-                            <a href="{{ route('dynamic.page', \Illuminate\Support\Str::slug($page->page_name)) }}">
+                @if($general?->instagram)
+                    <a href="{{ $general->instagram }}" target="_blank" class="footer-social-link">
+                        <img src="{{ asset('assets/images/footer_Logo.png')}}" alt="La Pavone Home" loading="lazy">
+                    </a>
+                @endif
+            </div>
+       <div class="footer-bottom">
+                <div class="lp-container">
+                    <div class="footer-links-row">
+                        <span class="footer-copyright">&copy;2026, La Pavone</span>
+                        <div class="footer-nav">
+                            <a href="{{ route('about-us') }}" class="footer-link">About Us</a>
+                            <a href="{{ route('contact-us') }}" class="footer-link">Contact Us</a>
+                            <a href="{{ route('faqs') }}" class="footer-link">FAQs</a>
+                            <!--<a href="{{ route('blogs') }}" class="">Blogs</a>-->
+                            
+                         
+                            
+                            @foreach($footerPages as $page)
+                            <a href="{{ route('dynamic.page', \Illuminate\Support\Str::slug($page->page_name)) }}" class="footer-link">
                                 {{ $page->heading }}</a>
-                        @endforeach
+                                
+                                
+                                
+                                   
+                         
+                            @endforeach
+                            
+                            
+                            <!--   <div class="footer-dropdown">-->
+                               
+                            <!--             <a href="{{ route('blogs') }}" class="footer-dropdown-toggle" > <span>Blogs</span>  </a>-->
+                            <!--    <div class="footer-dropdown-menu">-->
+                            <!--        <a href="#" class="footer-dropdown-item">English</a>-->
+                            <!--        <a href="#" class="footer-dropdown-item">Hindi</a>-->
+                            <!--    </div>-->
+                            <!--</div>-->
+                            
+<!--                        <div class="footer-dropdown footer-hover-dropdown">-->
+<!--    <a href="{{ route('blogs') }}" class="footer-dropdown-toggle">-->
+<!--        <span>Blogs <i class="fa-solid fa-chevron-down text-white"></i></span>-->
+<!--    </a>-->
+
+<!--    <div class="footer-dropdown-menu">-->
+<!--        <a href="#" class="footer-dropdown-item">English</a>-->
+<!--        <a href="#" class="footer-dropdown-item">Hindi</a>-->
+<!--    </div>-->
+<!--</div>-->
+
+<div class="footer-blog-dropdown">
+    <a href="javascript:void(0)" class="footer-blog-toggle">
+        <span>
+            Blogs
+            <i class="fa-solid fa-chevron-down"></i>
+        </span>
+    </a>
+
+    <div class="footer-blog-menu">
+        <a href="{{ route('blogs') }}" class="footer-blog-item">English</a>
+        <a href="{{ route('blogs') }}" class="footer-blog-item">Hindi</a>
+    </div>
+</div>
+                        </div>
                     </div>
-                </div>
-                <div class="footer-address">
-                    @if(!empty($general?->business_address))
+                    <div class="footer-address">
+                        @if(!empty($general?->business_address))
                         <p>{{ $general->business_address }}</p>
-                    @endif
+                        @endif
+                    </div>
                 </div>
             </div>
         </footer>
+
+        <!-- 9. FOOTER -->
+        <!-- Simplified Custom Login Footer -->
+        <!--<footer class="login-simple-footer">-->
+        <!--    <div class="lp-container">-->
+        <!--        <div class="footer-links-row">-->
+        <!--            <span class="footer-copyright">&copy;2026, La Pavone</span>-->
+        <!--            <div class="footer-nav">-->
+        <!--                <a href="{{ route('about-us') }}" class="footer-link">About Us</a>-->
+        <!--                <a href="{{ route('contact-us') }}" class="footer-link">Contact Us</a>-->
+        <!--                <a href="{{ route('faqs') }}" class="footer-link">FAQs</a>-->
+        <!--                <a href="{{ route('blogs') }}" class="footer-link">Blogs</a>-->
+        <!--                @foreach($footerPages as $page)-->
+        <!--                    <a href="{{ route('dynamic.page', \Illuminate\Support\Str::slug($page->page_name)) }}">-->
+        <!--                        {{ $page->heading }}</a>-->
+        <!--                @endforeach-->
+        <!--            </div>-->
+        <!--        </div>-->
+        <!--        <div class="footer-address">-->
+        <!--            @if(!empty($general?->business_address))-->
+        <!--                <p>{{ $general->business_address }}</p>-->
+        <!--            @endif-->
+        <!--        </div>-->
+        <!--    </div>-->
+        <!--</footer>-->
     </div>
 <style>
         .nav-icons {

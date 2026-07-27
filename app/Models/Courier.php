@@ -10,6 +10,7 @@ class Courier extends Model
         'name',
         'website_url',
         'is_active',
+        'is_default'
     ];
 
     public function orders()

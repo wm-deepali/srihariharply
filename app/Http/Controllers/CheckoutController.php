@@ -57,6 +57,9 @@ class CheckoutController extends Controller
 
         $states = State::orderBy('name')
             ->get();
+            
+                $beginCheckoutScript = \App\Services\Tracking\PixelTracker::beginCheckoutScript($cart);
+
 
         return view(
             'front-pages.checkout',
@@ -65,7 +68,8 @@ class CheckoutController extends Controller
                 'customer',
                 'addresses',
                 'defaultAddress',
-                'states'
+                'states',
+                'beginCheckoutScript' // 👈 new
             )
         );
     }
@@ -418,6 +422,15 @@ class CheckoutController extends Controller
 
 
                 DB::commit();
+                
+                // 👇 new — dispatch after commit so order is guaranteed saved
+\App\Jobs\SendMetaCapiPurchase::dispatch(
+    $order->id,
+    $request->ip(),
+    $request->userAgent(),
+    $request->cookie('_fbp'),
+    $request->cookie('_fbc'),
+);
 
                 $this->sendOrderEmails($order);
                 $this->sendOrderSms($order);
@@ -709,6 +722,15 @@ class CheckoutController extends Controller
 
             DB::commit();
 
+// 👇 new
+\App\Jobs\SendMetaCapiPurchase::dispatch(
+    $order->id,
+    $request->ip(),
+    $request->userAgent(),
+    $request->cookie('_fbp'),
+    $request->cookie('_fbc'),
+);
+
             $this->sendOrderEmails($order);
             $this->sendOrderSms($order);
 
@@ -739,9 +761,10 @@ class CheckoutController extends Controller
 
     public function orderSuccess(Order $order)
     {
+          $purchaseScript = \App\Services\Tracking\PixelTracker::purchaseScript($order);
         return view(
             'front-pages.thank-you',
-            compact('order')
+            compact('order', 'purchaseScript') // 👈 new
         );
     }
 

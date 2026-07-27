@@ -65,5 +65,9 @@
 
     </div>
 </section>
-
+@if(!empty($purchaseScript))
+<script>
+    {!! $purchaseScript !!}
+</script>
+@endif
 @endsection

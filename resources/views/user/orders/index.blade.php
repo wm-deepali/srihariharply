@@ -140,13 +140,12 @@
                                                 </a>
                                             @endif
 
-                                            {{-- Track: for active orders --}}
-                                            @if (in_array($order->status, ['processing', 'confirmed', 'shipped']))
-                                                <a href="{{ route('user.orders.show', $order->id) }}"
-                                                    class="btn-order-action btn-outline">
-                                                    Track Order
-                                                </a>
-                                            @endif
+                                              @if($order->courier && $order->tracking_number)
+    <a href="{{ $order->courier->website_url }}"
+        class="btn-order-action btn-outline" target="_blank">
+       Track Order
+    </a>
+@endif
 
                                             {{-- View Details --}}
                                             <a href="{{ route('user.orders.show', $order->id) }}"

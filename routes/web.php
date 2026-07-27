@@ -214,6 +214,18 @@ Route::get('/get-cities', [AdminSettingController::class, 'getCities'])->name('g
 
 
 Route::prefix('admin')->name('admin.')->group(function () {
+      // Admin Settings routes
+        Route::get('/admin-setting', [AdminSettingController::class, 'index'])->name('admin-setting.index');
+        Route::post('/invoice-settings', [AdminSettingController::class, 'invoiceSettingStore'])->name('invoice-settings.store');
+        Route::post('/smtp-settings/store', [AdminSettingController::class, 'smtpSettingStore'])->name('smtp-settings.store');
+        Route::post('/payment-settings/store', [AdminSettingController::class, 'paymentSettingStore'])->name('payment-settings.store');
+        Route::post('/settings/general', [AdminSettingController::class, 'generalSettingStore'])->name('settings.general.store');
+        Route::post('/settings/courier/store', [AdminSettingController::class, 'courierStore'])->name('couriers.store');
+        Route::delete('/settings/courier/{courier}', [AdminSettingController::class, 'courierDelete'])->name('couriers.delete');
+
+Route::post('admin-setting/google-setting', [AdminSettingController::class, 'googleSettingStore'])
+    ->name('admin-setting.google-setting');
+    
     Route::middleware(['auth', 'admin.timeout'])->group(function () {
 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -312,15 +324,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('coupons/{coupon}/share', [CouponController::class, 'share'])->name('coupons.share');
         Route::resource('coupons', CouponController::class);
 
-        // Admin Settings routes
-        Route::get('/admin-setting', [AdminSettingController::class, 'index'])->name('admin-setting.index');
-        Route::post('/invoice-settings', [AdminSettingController::class, 'invoiceSettingStore'])->name('invoice-settings.store');
-        Route::post('/smtp-settings/store', [AdminSettingController::class, 'smtpSettingStore'])->name('smtp-settings.store');
-        Route::post('/payment-settings/store', [AdminSettingController::class, 'paymentSettingStore'])->name('payment-settings.store');
-        Route::post('/settings/general', [AdminSettingController::class, 'generalSettingStore'])->name('settings.general.store');
-        Route::post('/settings/courier/store', [AdminSettingController::class, 'courierStore'])->name('couriers.store');
-        Route::delete('/settings/courier/{courier}', [AdminSettingController::class, 'courierDelete'])->name('couriers.delete');
-
+      
         Route::post('/settings/sms', [SmsSettingsController::class, 'update'])->name('settings.sms.update');
         Route::post('/settings/sms/test', [SmsSettingsController::class, 'test'])->name('settings.sms.test');
 

@@ -25,7 +25,7 @@
 
         <!-- CONTROLS BAR -->
         <section class="controls-section">
-            <div class="lp-container d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+            <div class="lp-container d-flex  flex-md-row justify-content-between align-items-center gap-3">
 
                 <!-- Subcategory Filter Tabs -->
                 <div class="filter-group d-flex flex-wrap gap-2" id="filter-tabs">
@@ -74,7 +74,7 @@
                                 $defaultImg = $product->images->firstWhere('image_type', 'default');
                                 $hoverImg = $product->images->firstWhere('image_type', 'hover');
                             @endphp
-                            <div class="col-6 col-md-4">
+                            <div class="col-12 col-md-4">
                                 <div class="product-card is-visible">
                                     <div class="product-image-wrap"
                                         onclick="window.location.href='{{ route('shop.product', $product->slug) }}'">
@@ -218,7 +218,7 @@
                     if ($('.cart-count').length) {
                         $('.cart-count').text(response.cart_count);
                     }
-
+   fireTrackingEvents(response.tracking_events); 
                     Swal.fire({
                         icon: 'success',
                         title: 'Added to Cart',
@@ -272,6 +272,8 @@
                         $('.wishlist-count').text(response.wishlist_count);
                     }
 
+ fireTrackingEvents(response.tracking_events);
+ 
                     if (response.status) {
 
                         $btn.addClass('active');

@@ -831,10 +831,14 @@
                         onclick="switchTab('couriers', this)">
                         <i class="fa-solid fa-truck"></i> Courier Management
                     </button>
-                      <button class="tab-btn {{ $activeTab == 'sms' ? 'active' : '' }}"
-                        onclick="switchTab('sms', this)">
-                        <i class="fa-solid fa-truck"></i> SMS
-                    </button>
+                    <button class="tab-btn {{ $activeTab == 'sms' ? 'active' : '' }}"
+    onclick="switchTab('sms', this)">
+    <i class="fa-solid fa-truck"></i> SMS
+</button>
+<button class="tab-btn {{ $activeTab == 'tracking' ? 'active' : '' }}"
+    onclick="switchTab('tracking', this)">
+    <i class="fa-brands fa-google"></i> Tracking &amp; Pixels
+</button>
                 </div>
 
                 <!-- ══════════════════════════════════
@@ -873,13 +877,13 @@
                     @include('admin.admin-settings.couriers')
 
                 </div>
+<div class="tab-panel {{ $activeTab == 'sms' ? 'active' : '' }}" id="tab-sms">
+    @include('admin.admin-settings.sms')
+</div>
 
-                 <div class="tab-panel {{ $activeTab == 'sms' ? 'active' : '' }}" id="tab-sms">
-
-                    @include('admin.admin-settings.sms')
-
-                </div>
-         
+<div class="tab-panel {{ $activeTab == 'tracking' ? 'active' : '' }}" id="tab-tracking">
+    @include('admin.admin-settings.google-setting')
+</div>
 
             </div><!-- /tab-shell -->
 

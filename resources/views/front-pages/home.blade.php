@@ -148,7 +148,7 @@
     </div>
 
     <!-- 8. AUDIO SECTION -->
-    <section class="audio-section js-audio-observe" id="audio-section">
+ <section class="audio-section js-audio-observe" id="audio-section">
         <h2 class="section-heading">{{ $audio->heading }}</h2>
         <div class="audio-image-wrapper mt-4">
             <img src="{{ $audio->section_image ? asset('storage/' . $audio->section_image) : 'assets/images/banners/last_imgsection.png' }}"
@@ -162,6 +162,7 @@
             @endif
         </audio>
     </section>
+
 
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -198,6 +199,7 @@
                     if (response.status) {
                         // Header cart icon count update
                         $('.cart-count').text(response.cart_count);
+                          fireTrackingEvents(response.tracking_events); 
 
                         Swal.fire({
                             icon: 'success',
@@ -249,6 +251,7 @@
                         $('.wishlist-count').text(response.wishlist_count);
                     }
 
+    fireTrackingEvents(response.tracking_events);
                     if (response.status) {
 
                         $btn.addClass('active');

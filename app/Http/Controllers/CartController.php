@@ -8,6 +8,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\ProductVariant;
 use App\Models\Coupon;
+use App\Services\Tracking\PixelTracker;
 
 
 class CartController extends Controller
@@ -129,13 +130,16 @@ class CartController extends Controller
 
         $cart->recalculateTotals();
         $cart->refresh();
+        
+        $trackingEvents = PixelTracker::addToCart($product, $quantity, $price);
 
         return response()->json([
             'status' => true,
             'message' => 'Product added to cart successfully.',
             'cart_count' => $cart->items()->sum('quantity'),
             'cart_total' => $cart->grand_total,
-            'cart_item_id' => $item->id,   // ← blade JS ko item_id chahiye updateQuantity ke liye
+            'cart_item_id' => $item->id,
+            'tracking_events' => $trackingEvents,
         ]);
     }
 
@@ -177,36 +181,41 @@ class CartController extends Controller
 
 
     public function remove($id)
-    {
-        $item = CartItem::findOrFail($id);
+{
+    $item = CartItem::findOrFail($id);
 
-        if (auth('customer')->check()) {
-
-            if ($item->cart->user_id != auth('customer')->id()) {
-                abort(403);
-            }
-
-        } else {
-
-            if ($item->cart->session_id != session()->getId()) {
-                abort(403);
-            }
+    if (auth('customer')->check()) {
+        if ($item->cart->user_id != auth('customer')->id()) {
+            abort(403);
         }
-
-        $cart = $item->cart;
-
-        $item->delete();
-
-        $cart->recalculateTotals();
-        $cart->refresh();
-
-        return response()->json([
-            'status' => true,
-            'message' => 'Item removed successfully',
-            'cart_total' => $cart->grand_total,
-            'cart_count' => $cart->items()->sum('quantity')
-        ]);
+    } else {
+        if ($item->cart->session_id != session()->getId()) {
+            abort(403);
+        }
     }
+
+    $cart = $item->cart;
+
+    // capture before delete
+    $trackingEvents = \App\Services\Tracking\PixelTracker::removeFromCart(
+        $item->product,
+        $item->quantity,
+        $item->price
+    );
+
+    $item->delete();
+
+    $cart->recalculateTotals();
+    $cart->refresh();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Item removed successfully',
+        'cart_total' => $cart->grand_total,
+        'cart_count' => $cart->items()->sum('quantity'),
+        'tracking_events' => $trackingEvents, // 👈 new
+    ]);
+}
 
     public function updateQuantity(Request $request)
     {

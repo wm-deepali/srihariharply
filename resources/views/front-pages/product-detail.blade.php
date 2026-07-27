@@ -9,6 +9,7 @@
         if ($bannerImages->isEmpty() && $defaultImg) {
             $bannerImages = collect([$defaultImg]);
         }
+
     @endphp
 
     <style>
@@ -113,33 +114,7 @@
             ;
         }
 
-        /* ── SweetAlert Custom Buttons ── */
-        div:where(.swal2-container) div:where(.swal2-popup) {
-            width: 400px !important;
-            height: 350px !important;
-            border-radius: 20px !important;
-            padding: 30px !important;
-            box-sizing: border-box !important;
-            overflow: hidden !important;
-        }
-
-        div:where(.swal2-container) .swal2-html-container {
-            overflow: hidden !important;
-        }
-
-        div:where(.swal2-container) button:where(.swal2-styled).swal2-confirm,
-        div:where(.swal2-container) button:where(.swal2-styled).swal2-cancel {
-            min-width: 120px !important;
-            height: 45px !important;
-            padding: 0 24px !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            border-radius: 999px !important;
-            font-size: 14px !important;
-            font-weight: 500 !important;
-            font-family: 'Inter', system-ui, sans-serif !important;
-        }
+    
     </style>
 
     <div class="product-page-wrapper">
@@ -275,7 +250,7 @@
                             </div>
                         @endif
 
-                        
+                                             
 @if(!empty($product->product_notes))
     <div class="accordion-item">
         <div class="accordion-header"
@@ -495,6 +470,7 @@
                         if (response.status) {
                             showQtyState(1, response.cart_item_id);
                             $('.cart-count').text(response.cart_count);
+                               fireTrackingEvents(response.tracking_events); 
                             Swal.fire({
                                 icon: 'success',
                                 title: response.message,
@@ -618,6 +594,7 @@
                     success: function (response) {
                         if (response.status) {
                             $('.cart-count').text(response.cart_count);
+                             fireTrackingEvents(response.tracking_events); 
                             resetToAddState();
                             Swal.fire({
                                 icon: 'success',
@@ -670,11 +647,11 @@
                     if (response.wishlist_count !== undefined) {
                         $('.wishlist-count').text(response.wishlist_count);
                     }
-
+ fireTrackingEvents(response.tracking_events);
                     if (response.status) {
 
                         $btn.addClass('active');
-                        $icon.css('opacity', '0.6');
+                        $icon.css('opacity', '1');
 
                         Swal.fire({
                             icon: 'success',
@@ -709,4 +686,9 @@
 
     </script>
 
+@if(!empty($viewItemScript))
+<script>
+    {!! $viewItemScript !!}
+</script>
+@endif
 @endsection
