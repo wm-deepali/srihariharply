@@ -1,6 +1,18 @@
 @extends('layouts.app')
 @section('content')
 
+    <style>
+        .price-mrp {
+            text-decoration: line-through;
+            /* display: block; */
+        }
+
+        .price-discounted {
+            /* color: #dc3545; */
+            /* display: block; */
+        }
+    </style>
+
     <div class="shopall-page-wrapper">
 
         <!-- CATEGORY HERO BANNER -->
@@ -76,6 +88,15 @@
                             @endphp
                             <div class="col-12 col-md-4">
                                 <div class="product-card is-visible">
+                                    @if($product->mrp && $product->mrp > $product->price)
+                                        @php
+                                            $discountPercent = round((($product->mrp - $product->price) / $product->mrp) * 100);
+                                            $tagColor = $product->detail_page_color ?? '#dc3545';
+                                        @endphp
+                                        <span class="product-tag" style="background-color: {{ $tagColor }}; border-color: {{ $tagColor }};">{{ $discountPercent }}% OFF</span>
+                                        <span class="product-hover-tag" style="background-color: {{ $tagColor }}; border-color: {{ $tagColor }};">{{ $discountPercent }}%
+                                            OFF</span>
+                                    @endif
                                     <div class="product-image-wrap"
                                         onclick="window.location.href='{{ route('shop.product', $product->slug) }}'">
                                         <img src="{{ $defaultImg ? asset('storage/' . $defaultImg->image) : asset('assets/images/placeholder.png') }}"
@@ -89,7 +110,14 @@
                                                 onclick="window.location.href='{{ route('shop.product', $product->slug) }}'">
                                                 {{ $product->name }}
                                             </div>
-                                            <div class="product-price-card">₹{{ number_format($product->price, 0) }}</div>
+                                            <div class="product-price-card">
+                                                @if($product->mrp && $product->mrp > $product->price)
+                                                    <span class="price-mrp">₹{{ number_format($product->mrp, 0) }}</span>
+                                                    <span class="price-discounted">₹{{ number_format($product->price, 0) }}</span>
+                                                @else
+                                                    <span class="price-discounted">₹{{ number_format($product->price, 0) }}</span>
+                                                @endif
+                                            </div>
                                         </div>
                                         <div class="product-actions">
                                             <button

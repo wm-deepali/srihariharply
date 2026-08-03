@@ -114,6 +114,16 @@
             ;
         }
 
+        /* ── Price (MRP / Discounted) ── */
+        .price-mrp {
+            text-decoration: line-through;
+            display: block;
+        }
+
+        .price-discounted {
+            display: block;
+        }
+
     
     </style>
 
@@ -179,7 +189,18 @@
                         </div>
 
                         <div class="details-right">
-                            <div class="product-price">₹{{ number_format($product->price, 2) }}</div>
+                            <div class="product-price">
+                                @if($product->mrp && $product->mrp > $product->price)
+                                    @php
+                                        $discountPercent = round((($product->mrp - $product->price) / $product->mrp) * 100);
+                                    @endphp
+                                    <span class="price-mrp">₹{{ number_format($product->mrp, 2) }}</span>
+                                    <span class="price-discounted">₹{{ number_format($product->price, 2) }}</span>
+                                    <span class="product-tag" style="background-color: {{ $product->detail_page_color ?? '#dc3545' }}; border-color: {{ $product->detail_page_color ?? '#dc3545' }};">{{ $discountPercent }}% OFF</span>
+                                @else
+                                    <span class="price-discounted">₹{{ number_format($product->price, 2) }}</span>
+                                @endif
+                            </div>
 
                             {{-- ── Add To Bag / Qty Controls / View Cart ── --}}
                             <div class="add-to-bag-wrapper">
@@ -335,6 +356,15 @@
                                 @endphp
                                 <div class="product-card is-visible"
                                     onclick="window.location.href='{{ route('shop.product', $similar->slug) }}'">
+                                    @if($similar->mrp && $similar->mrp > $similar->price)
+                                        @php
+                                            $simDiscountPercent = round((($similar->mrp - $similar->price) / $similar->mrp) * 100);
+                                            $simTagColor = $similar->detail_page_color ?? '#dc3545';
+                                        @endphp
+                                        <span class="product-tag" style="background-color: {{ $simTagColor }}; border-color: {{ $simTagColor }};">{{ $simDiscountPercent }}% OFF</span>
+                                        <span class="product-hover-tag" style="background-color: {{ $simTagColor }}; border-color: {{ $simTagColor }};">{{ $simDiscountPercent }}%
+                                            OFF</span>
+                                    @endif
                                     <div class="product-image-wrap">
                                         <img src="{{ $simDefault ? asset('storage/' . $simDefault->image) : asset('assets/images/placeholder.png') }}"
                                             alt="{{ $similar->name }}" class="product-image-primary" loading="lazy">
@@ -344,7 +374,14 @@
                                     <div class="product-info">
                                         <div class="product-details">
                                             <div class="product-name">{{ $similar->name }}</div>
-                                            <div class="product-price-card">₹{{ number_format($similar->price, 0) }}</div>
+                                            <div class="product-price-card">
+                                                @if($similar->mrp && $similar->mrp > $similar->price)
+                                                    <span class="price-mrp">₹{{ number_format($similar->mrp, 0) }}</span>
+                                                    <span class="price-discounted">₹{{ number_format($similar->price, 0) }}</span>
+                                                @else
+                                                    <span class="price-discounted">₹{{ number_format($similar->price, 0) }}</span>
+                                                @endif
+                                            </div>
                                         </div>
                                         <div class="product-actions">
                                             <button

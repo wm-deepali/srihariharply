@@ -584,7 +584,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&amp;l='+l:'';j.async=true;j.src=
         <a href="{{ route('admin.admin-setting.index', ['tab' => 'tracking']) }}" class="btn-secondary-dash">
             Discard Changes
         </a>
-        <button type="submit" class="btn-primary-dash" onclick="saveSettings(this)">
+        <button type="submit" class="btn-primary-dash">
             <i class="fa fa-save"></i> Save Tracking Settings
         </button>
     </div>

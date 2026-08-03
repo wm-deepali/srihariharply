@@ -447,6 +447,15 @@
                                     <input type="number" step="0.01" name="maximum_discount" class="field-input">
                                 </div>
 
+<div class="field-group">
+    <label class="field-label">
+        Minimum Order Quantity
+    </label>
+
+    <input type="number" min="1" name="minimum_order_quantity" class="field-input" placeholder="e.g. 2">
+
+</div>
+
                                 <div class="field-group">
                                     <label class="field-label">
                                         Coupon For

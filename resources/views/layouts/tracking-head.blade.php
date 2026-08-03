@@ -1,5 +1,5 @@
 {{-- ══════ GOOGLE TAG MANAGER ══════ --}}
-@if($googleSetting->gtm_enabled && $googleSetting->gtm_container_id)
+@if($googleSetting->gtm_enabled && $googleSetting->gtm_container_id && ($googleSetting->gtm_inject_position ?? 'head') === 'head')
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=

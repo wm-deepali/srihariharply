@@ -162,39 +162,42 @@
         </li>
 
 
-        {{-- Admin Setting --}}
-        <li class="{{ request()->routeIs(
+       {{-- Admin Setting --}}
+<li class="{{ request()->routeIs(
     'admin.settings.*',
 ) ? 'active' : '' }}">
-            <a href="#"><i class="fa-solid fa-gear"></i> Settings</a>
-            <ul>
-
-                <li><a href="{{ route('admin.admin-setting.index', ['tab' => 'general']) }}">General Setting</a></li>
-                <li><a href="{{ route('admin.admin-setting.index', ['tab' => 'payment']) }}">Payment Gateway</a></li>
-                <li><a href="{{ route('admin.admin-setting.index', ['tab' => 'smtp']) }}">SMTP</a></li>
-                <li>
-                    <a href="{{ route('admin.admin-setting.index', ['tab' => 'gst']) }}">
-                        GST & Invoice
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.admin-setting.index', ['tab' => 'couriers']) }}">
-                        Courier Management
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.admin-setting.index', ['tab' => 'sms']) }}">
-                        SMS
-                    </a>
-                </li>
-                  <li>
-                    <a href="{{ route('admin.settings.templates.index') }}">
-                        Template Settings
-                    </a>
-                </li>
-            </ul>
+    <a href="#"><i class="fa-solid fa-gear"></i> Settings</a>
+    <ul>
+        <li><a href="{{ route('admin.admin-setting.index', ['tab' => 'general']) }}">General Setting</a></li>
+        <li><a href="{{ route('admin.admin-setting.index', ['tab' => 'payment']) }}">Payment Gateway</a></li>
+        <li><a href="{{ route('admin.admin-setting.index', ['tab' => 'smtp']) }}">SMTP</a></li>
+        <li>
+            <a href="{{ route('admin.admin-setting.index', ['tab' => 'gst']) }}">
+                GST & Invoice
+            </a>
         </li>
-
+        <li>
+            <a href="{{ route('admin.admin-setting.index', ['tab' => 'couriers']) }}">
+                Courier Management
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('admin.admin-setting.index', ['tab' => 'sms']) }}">
+                SMS
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('admin.admin-setting.index', ['tab' => 'tracking']) }}">
+                Tracking & Pixels
+            </a>
+        </li>
+        <li>
+            <a href="{{ route('admin.settings.templates.index') }}">
+                Template Settings
+            </a>
+        </li>
+    </ul>
+</li>
 
 
 

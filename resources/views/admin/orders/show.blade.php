@@ -843,8 +843,9 @@
                         <div class="section-card-body" style="padding:16px 20px">
                             <div class="info-row">
                                 <span class="info-label">Method</span>
-                                <span
-                                    class="info-value">{{ ucfirst(str_replace('_', ' ', $order->payment_method ?? '—')) }}</span>
+                                <span class="info-value">
+                                    {{ $order->payment_method ? (strtolower($order->payment_method) === 'cod' ? 'Cash on Delivery' : ucfirst($order->payment_method) . '/Online Payment') : '—' }}
+                                </span>
                             </div>
                             <div class="info-row">
                                 <span class="info-label">Status</span>
@@ -961,46 +962,42 @@
                                         </select>
                                     </div>
                                     <div id="shipping-details"
-     style="{{ in_array($order->status, ['shipped','delivered']) ? '' : 'display:none' }}">
+                                        style="{{ in_array($order->status, ['shipped', 'delivered']) ? '' : 'display:none' }}">
 
-    <div style="margin-bottom:12px">
-        <label class="field-label">
-            Courier
-        </label>
+                                        <div style="margin-bottom:12px">
+                                            <label class="field-label">
+                                                Courier
+                                            </label>
 
-        <select name="courier_id" class="field-select-full">
+                                            <select name="courier_id" class="field-select-full">
 
-            <option value="">
-                Select Courier
-            </option>
+                                                <option value="">
+                                                    Select Courier
+                                                </option>
 
-            @foreach($couriers as $courier)
+                                                @foreach($couriers as $courier)
 
-                <option value="{{ $courier->id }}"
-                    {{ $order->courier_id == $courier->id ? 'selected' : '' }}>
-                    {{ $courier->name }}
-                </option>
+                                                    <option value="{{ $courier->id }}" {{ $order->courier_id == $courier->id ? 'selected' : '' }}>
+                                                        {{ $courier->name }}
+                                                    </option>
 
-            @endforeach
+                                                @endforeach
 
-        </select>
-    </div>
+                                            </select>
+                                        </div>
 
-    <div style="margin-bottom:12px">
-        <label class="field-label">
-            Tracking Number
-        </label>
+                                        <div style="margin-bottom:12px">
+                                            <label class="field-label">
+                                                Tracking Number
+                                            </label>
 
-        <input type="text"
-               name="tracking_number"
-               class="field-input-full"
-               value="{{ $order->tracking_number }}"
-               placeholder="Enter tracking number">
-    </div>
+                                            <input type="text" name="tracking_number" class="field-input-full"
+                                                value="{{ $order->tracking_number }}" placeholder="Enter tracking number">
+                                        </div>
 
-</div>
+                                    </div>
 
-                                  
+
                                     <div style="margin-bottom:14px">
                                         <label class="field-label">Note (optional)</label>
                                         <textarea name="note" class="field-textarea"
@@ -1102,7 +1099,7 @@
                             <div class="info-row">
                                 <span class="info-label">Payment</span>
                                 <span
-                                    class="info-value">{{ ucfirst(str_replace('_', ' ', $order->payment_method ?? '—')) }}</span>
+                                    class="info-value">  {{ $order->payment_method ? (strtolower($order->payment_method) === 'cod' ? 'Cash on Delivery' : ucfirst($order->payment_method) . '/Online Payment') : '—' }}</span>
                             </div>
                             @if($order->courier)
 
@@ -1171,28 +1168,28 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
 
-    const statusSelect = document.querySelector('[name="status"]');
-    const shippingBlock = document.getElementById('shipping-details');
+        const statusSelect = document.querySelector('[name="status"]');
+        const shippingBlock = document.getElementById('shipping-details');
 
-    function toggleShippingFields() {
+        function toggleShippingFields() {
 
-        if (
-            statusSelect.value === 'shipped' ||
-            statusSelect.value === 'delivered'
-        ) {
-            shippingBlock.style.display = 'block';
-        } else {
-            shippingBlock.style.display = 'none';
+            if (
+                statusSelect.value === 'shipped' ||
+                statusSelect.value === 'delivered'
+            ) {
+                shippingBlock.style.display = 'block';
+            } else {
+                shippingBlock.style.display = 'none';
+            }
         }
-    }
 
-    toggleShippingFields();
+        toggleShippingFields();
 
-    statusSelect.addEventListener('change', toggleShippingFields);
+        statusSelect.addEventListener('change', toggleShippingFields);
 
-});
+    });
 </script>
 
 @include('admin.footer')

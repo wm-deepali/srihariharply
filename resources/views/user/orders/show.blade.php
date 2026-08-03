@@ -129,17 +129,8 @@
                                             <h3 class="details-card-title">Payment Info</h3>
                                             <div class="address-display">
                                                 <p class="address-name">
-                                                    @php
-                                                        $paymentLabels = [
-                                                            'razorpay' => 'Paid via Razorpay',
-                                                            'upi' => 'UPI / NetBanking',
-                                                            'cod' => 'Cash on Delivery',
-                                                            'netbanking' => 'Net Banking',
-                                                            'card' => 'Card Payment',
-                                                        ];
-                                                    @endphp
-                                                    {{ $paymentLabels[strtolower($order->payment_method ?? 'cod')] ?? ucfirst($order->payment_method) }}
-                                                </p>
+    {{ strtolower($order->payment_method ?? 'cod') === 'cod' ? 'Cash on Delivery' : 'Online Payment' }}
+</p>
                                                 <p>Status:
                                                     <span
                                                         class="status-badge status-{{ strtolower($order->payment_status ?? 'pending') }}"

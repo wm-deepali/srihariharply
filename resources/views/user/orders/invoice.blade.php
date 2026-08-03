@@ -43,7 +43,7 @@
             font-weight: 600;
             text-decoration: none;
             cursor: pointer;
-            box-shadow: 0 1px 4px rgba(0,0,0,.06);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, .06);
         }
 
         .btn-pdf {
@@ -59,7 +59,7 @@
             font-weight: 700;
             text-decoration: none;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(31,85,82,.30);
+            box-shadow: 0 2px 8px rgba(31, 85, 82, .30);
         }
 
         .btn-print {
@@ -75,7 +75,7 @@
             font-weight: 500;
             text-decoration: none;
             cursor: pointer;
-            box-shadow: 0 1px 3px rgba(0,0,0,.06);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
         }
 
         /* ── Wrapper ── */
@@ -85,7 +85,7 @@
             background: #fff;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 6px 32px rgba(0,0,0,.12);
+            box-shadow: 0 6px 32px rgba(0, 0, 0, .12);
         }
 
         /* ── Header Band ── */
@@ -111,7 +111,7 @@
             vertical-align: top;
             padding: 36px 40px 36px 40px;
             text-align: right;
-            background: rgba(0,0,0,0.10);
+            background: rgba(0, 0, 0, 0.10);
             width: 45%;
         }
 
@@ -132,14 +132,14 @@
 
         .brand-tagline {
             font-size: 11px;
-            color: rgba(244,245,242,0.55);
+            color: rgba(244, 245, 242, 0.55);
             letter-spacing: 2px;
             text-transform: uppercase;
             margin-bottom: 18px;
         }
 
         .brand-address {
-            border-top: 1px solid rgba(255,255,255,0.15);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
             padding-top: 14px;
             margin-top: 2px;
         }
@@ -150,7 +150,7 @@
             font-weight: 700;
             letter-spacing: 3px;
             text-transform: uppercase;
-            color: rgba(244,245,242,0.45);
+            color: rgba(244, 245, 242, 0.45);
             margin-bottom: 6px;
         }
 
@@ -167,7 +167,7 @@
 
         .inv-date {
             font-size: 12px;
-            color: rgba(244,245,242,0.65);
+            color: rgba(244, 245, 242, 0.65);
             margin-bottom: 14px;
         }
 
@@ -182,10 +182,25 @@
             text-transform: uppercase;
         }
 
-        .badge-paid     { background: #d4f0e8; color: #0a6644; }
-        .badge-pending  { background: #fff3cc; color: #7a5500; }
-        .badge-failed   { background: #fde8e8; color: #9b1c1c; }
-        .badge-refunded { background: #ede9fe; color: #5b21b6; }
+        .badge-paid {
+            background: #d4f0e8;
+            color: #0a6644;
+        }
+
+        .badge-pending {
+            background: #fff3cc;
+            color: #7a5500;
+        }
+
+        .badge-failed {
+            background: #fde8e8;
+            color: #9b1c1c;
+        }
+
+        .badge-refunded {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
 
         /* ── Divider stripe ── */
         .inv-stripe {
@@ -304,8 +319,13 @@
             text-align: left;
         }
 
-        .items-table thead th.right  { text-align: right; }
-        .items-table thead th.center { text-align: center; }
+        .items-table thead th.right {
+            text-align: right;
+        }
+
+        .items-table thead th.center {
+            text-align: center;
+        }
 
         .items-table tbody tr {
             border-bottom: 1px solid #edf0ef;
@@ -324,8 +344,13 @@
             vertical-align: top;
         }
 
-        .items-table tbody td.right  { text-align: right; }
-        .items-table tbody td.center { text-align: center; }
+        .items-table tbody td.right {
+            text-align: right;
+        }
+
+        .items-table tbody td.center {
+            text-align: center;
+        }
 
         .item-name {
             font-weight: 600;
@@ -450,7 +475,7 @@
 
         .inv-footer p {
             font-size: 11.5px;
-            color: rgba(244,245,242,0.55);
+            color: rgba(244, 245, 242, 0.55);
             line-height: 1.7;
         }
 
@@ -522,12 +547,20 @@
                         @if($setting?->company_address || $setting?->city || $setting?->state || $setting?->company_pincode)
                             <div style="display:table;width:100%;margin-bottom:6px;">
                                 <div style="display:table-cell;width:18px;vertical-align:top;padding-top:1px;">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(244,245,242,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                        stroke="rgba(244,245,242,0.6)" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+                                        <circle cx="12" cy="10" r="3" />
+                                    </svg>
                                 </div>
-                                <div style="display:table-cell;vertical-align:top;font-size:12px;color:rgba(244,245,242,0.75);line-height:1.7;">
+                                <div
+                                    style="display:table-cell;vertical-align:top;font-size:12px;color:rgba(244,245,242,0.75);line-height:1.7;">
                                     @if($setting?->company_address){{ $setting->company_address }},@endif
                                     @if($setting?->city || $setting?->state || $setting?->company_pincode)
-                                        {{ optional($setting->city)->name ?? '' }}@if($setting?->city && $setting?->state), @endif{{ optional($setting->state)->name ?? '' }}@if($setting?->company_pincode) &ndash; {{ $setting->company_pincode }}@endif
+                                        {{ optional($setting->city)->name ?? '' }}@if($setting?->city && $setting?->state),
+                                        @endif{{ optional($setting->state)->name ?? '' }}@if($setting?->company_pincode) &ndash;
+                                        {{ $setting->company_pincode }}@endif
                                     @endif
                                 </div>
                             </div>
@@ -536,10 +569,17 @@
                         @if($setting?->company_gstin)
                             <div style="display:table;width:100%;margin-bottom:6px;">
                                 <div style="display:table-cell;width:18px;vertical-align:middle;">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(244,245,242,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                        stroke="rgba(244,245,242,0.6)" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <rect x="2" y="7" width="20" height="14" rx="2" />
+                                        <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+                                    </svg>
                                 </div>
-                                <div style="display:table-cell;vertical-align:middle;font-size:12px;color:rgba(244,245,242,0.75);">
-                                    GSTIN: <span style="font-family:'Courier New',monospace;letter-spacing:0.04em;">{{ $setting->company_gstin }}</span>
+                                <div
+                                    style="display:table-cell;vertical-align:middle;font-size:12px;color:rgba(244,245,242,0.75);">
+                                    GSTIN: <span
+                                        style="font-family:'Courier New',monospace;letter-spacing:0.04em;">{{ $setting->company_gstin }}</span>
                                 </div>
                             </div>
                         @endif
@@ -547,10 +587,17 @@
                         @if($setting?->company_pan)
                             <div style="display:table;width:100%;margin-bottom:6px;">
                                 <div style="display:table-cell;width:18px;vertical-align:middle;">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(244,245,242,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                        stroke="rgba(244,245,242,0.6)" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <rect x="2" y="5" width="20" height="14" rx="2" />
+                                        <line x1="2" y1="10" x2="22" y2="10" />
+                                    </svg>
                                 </div>
-                                <div style="display:table-cell;vertical-align:middle;font-size:12px;color:rgba(244,245,242,0.75);">
-                                    PAN: <span style="font-family:'Courier New',monospace;letter-spacing:0.04em;">{{ $setting->company_pan }}</span>
+                                <div
+                                    style="display:table-cell;vertical-align:middle;font-size:12px;color:rgba(244,245,242,0.75);">
+                                    PAN: <span
+                                        style="font-family:'Courier New',monospace;letter-spacing:0.04em;">{{ $setting->company_pan }}</span>
                                 </div>
                             </div>
                         @endif
@@ -558,9 +605,15 @@
                         @if($setting?->company_phone)
                             <div style="display:table;width:100%;margin-bottom:6px;">
                                 <div style="display:table-cell;width:18px;vertical-align:middle;">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(244,245,242,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-.85a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 17z"/></svg>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                        stroke="rgba(244,245,242,0.6)" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path
+                                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-.85a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 17z" />
+                                    </svg>
                                 </div>
-                                <div style="display:table-cell;vertical-align:middle;font-size:12px;color:rgba(244,245,242,0.75);">
+                                <div
+                                    style="display:table-cell;vertical-align:middle;font-size:12px;color:rgba(244,245,242,0.75);">
                                     {{ $setting->company_phone }}
                                 </div>
                             </div>
@@ -569,9 +622,16 @@
                         @if($setting?->company_email)
                             <div style="display:table;width:100%;margin-bottom:0;">
                                 <div style="display:table-cell;width:18px;vertical-align:middle;">
-                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(244,245,242,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                                        stroke="rgba(244,245,242,0.6)" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path
+                                            d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                        <polyline points="22,6 12,13 2,6" />
+                                    </svg>
                                 </div>
-                                <div style="display:table-cell;vertical-align:middle;font-size:12px;color:rgba(244,245,242,0.75);">
+                                <div
+                                    style="display:table-cell;vertical-align:middle;font-size:12px;color:rgba(244,245,242,0.75);">
                                     {{ $setting->company_email }}
                                 </div>
                             </div>
@@ -589,11 +649,11 @@
                     </div>
                     @php
                         $badgeClass = match ($order->payment_status) {
-                            'paid'     => 'badge-paid',
-                            'pending'  => 'badge-pending',
-                            'failed'   => 'badge-failed',
+                            'paid' => 'badge-paid',
+                            'pending' => 'badge-pending',
+                            'failed' => 'badge-failed',
                             'refunded' => 'badge-refunded',
-                            default    => 'badge-pending',
+                            default => 'badge-pending',
                         };
                     @endphp
                     <div>
@@ -640,7 +700,9 @@
                     @if($order->payment_method)
                         <div class="meta-info-row">
                             <div class="meta-info-label">Payment</div>
-                            <div class="meta-info-value">{{ ucfirst(str_replace('_', ' ', $order->payment_method)) }}</div>
+                            <div class="meta-info-value">
+                                {{ strtolower($order->payment_method) === 'cod' ? 'Cash on Delivery' : 'Online Payment' }}
+                            </div>
                         </div>
                     @endif
                     @if($order->transaction_id)
@@ -676,8 +738,8 @@
                         <th style="width:36px;">#</th>
                         <th>Item Description</th>
                         <th class="center" style="width:70px;">Qty</th>
-                        <th class="right"  style="width:120px;">Unit Price</th>
-                        <th class="right"  style="width:120px;">Total</th>
+                        <th class="right" style="width:120px;">Unit Price</th>
+                        <th class="right" style="width:120px;">Total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -711,7 +773,8 @@
                         <div class="inv-notes" style="margin-top:20px;">
                             <p>
                                 <strong>Discount Applied</strong>
-                                Coupon <strong style="color:#1F5552;font-size:13px;letter-spacing:0;">{{ $order->coupon_code }}</strong>
+                                Coupon <strong
+                                    style="color:#1F5552;font-size:13px;letter-spacing:0;">{{ $order->coupon_code }}</strong>
                                 saved you &#8377;{{ number_format($invoice->discount, 2) }} on this order.
                             </p>
                         </div>
@@ -763,7 +826,9 @@
                             @endif
                         @endif
 
-                        <tr class="t-divider"><td colspan="2"></td></tr>
+                        <tr class="t-divider">
+                            <td colspan="2"></td>
+                        </tr>
                         <tr class="t-total">
                             <td class="t-label">Grand Total</td>
                             <td class="t-value">&#8377;{{ number_format($invoice->grand_total, 2) }}</td>
@@ -800,7 +865,8 @@
                 &nbsp;·&nbsp; Invoice #{{ $invoice->invoice_number }}
             </p>
             <p style="margin-top:5px;font-size:11px;">
-                This invoice was generated on {{ now()->format('d M Y, h:i A') }}
+                This invoice was generated on
+                {{ $order->created_at->timezone('Asia/Kolkata')->format('d M Y, h:i A') }} IST
             </p>
         </div>
 

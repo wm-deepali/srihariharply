@@ -66,9 +66,11 @@
             margin-right: 12px;
         }
     </style>
+        @include('layouts.tracking-head')
 </head>
 
 <body>
+    @include('layouts.tracking-body-top')
     <div class="la-pavone-wrapper login-page-wrapper">
         <!-- 1. STATIC NAVBAR -->
         <nav class="lp-navbar" style="position: relative; z-index: 10; background: #fff;">
@@ -357,6 +359,22 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/js/main.js')}}"></script>
+
+@include('layouts.tracking-body-bottom')
+<script>
+    // ── Fire tracking events returned from AJAX responses ──
+function fireTrackingEvents(events) {
+    if (!events || !Array.isArray(events) || events.length === 0) return;
+
+    if (events.ga4 && typeof gtag === 'function') {
+        gtag('event', events.ga4.name, events.ga4.params);
+    }
+
+    if (events.meta && typeof fbq === 'function') {
+        fbq('track', events.meta.name, events.meta.params);
+    }
+}
+</script>
 
 
 </body>

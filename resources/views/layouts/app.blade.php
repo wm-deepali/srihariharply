@@ -317,7 +317,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 @include('layouts.tracking-body-bottom')
+<script>
+    // ── Fire tracking events returned from AJAX responses ──
+function fireTrackingEvents(events) {
+    if (!events || !Array.isArray(events) || events.length === 0) return;
 
+    if (events.ga4 && typeof gtag === 'function') {
+        gtag('event', events.ga4.name, events.ga4.params);
+    }
+
+    if (events.meta && typeof fbq === 'function') {
+        fbq('track', events.meta.name, events.meta.params);
+    }
+}
+</script>
 </body>
 
 </html>

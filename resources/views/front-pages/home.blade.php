@@ -1,6 +1,17 @@
 @extends('layouts.app')
 @section('content')
 
+    <style>
+        .price-mrp {
+            text-decoration: line-through;
+            display: block;
+        }
+
+        .price-discounted {
+            /* color: #dc3545; */
+            display: block;
+        }
+    </style>
 
     <!-- 2. HERO SECTION -->
     <section class="hero-section" id="hero">
@@ -41,6 +52,15 @@
                         $hoverImg = $product->images->firstWhere('image_type', 'hover');
                     @endphp
                     <div class="product-card js-card-slide">
+                        @if($product->mrp && $product->mrp > $product->price)
+                            @php
+                                $discountPercent = round((($product->mrp - $product->price) / $product->mrp) * 100);
+                                $tagColor = $product->detail_page_color ?? '#dc3545';
+                            @endphp
+                            <span class="product-tag" style="background-color: {{ $tagColor }}; border-color: {{ $tagColor }};">{{ $discountPercent }}% OFF</span>
+                            <span class="product-hover-tag" style="background-color: {{ $tagColor }}; border-color: {{ $tagColor }};">{{ $discountPercent }}%
+                                OFF</span>
+                        @endif
                         <div class="product-image-wrap"
                             onclick="window.location.href='{{ route('shop.product', $product->slug) }}'">
                             <img src="{{ $defaultImg ? asset('storage/' . $defaultImg->image) : asset('assets/images/placeholder.png') }}"
@@ -93,7 +113,12 @@
                                 @endif
                             </div>
                             <div class="product-category-hover2">
-                                ₹{{ number_format($product->price, 2) }}
+                                @if($product->mrp && $product->mrp > $product->price)
+                                    <div class="price-mrp">₹{{ number_format($product->mrp, 2) }}</div>
+                                    <div class="price-discounted">₹{{ number_format($product->price, 2) }}</div>
+                                @else
+                                    <div class="price-discounted">₹{{ number_format($product->price, 2) }}</div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -148,7 +173,7 @@
     </div>
 
     <!-- 8. AUDIO SECTION -->
- <section class="audio-section js-audio-observe" id="audio-section">
+    <section class="audio-section js-audio-observe" id="audio-section">
         <h2 class="section-heading">{{ $audio->heading }}</h2>
         <div class="audio-image-wrapper mt-4">
             <img src="{{ $audio->section_image ? asset('storage/' . $audio->section_image) : 'assets/images/banners/last_imgsection.png' }}"
@@ -199,7 +224,7 @@
                     if (response.status) {
                         // Header cart icon count update
                         $('.cart-count').text(response.cart_count);
-                          fireTrackingEvents(response.tracking_events); 
+                        fireTrackingEvents(response.tracking_events);
 
                         Swal.fire({
                             icon: 'success',
@@ -251,7 +276,7 @@
                         $('.wishlist-count').text(response.wishlist_count);
                     }
 
-    fireTrackingEvents(response.tracking_events);
+                    fireTrackingEvents(response.tracking_events);
                     if (response.status) {
 
                         $btn.addClass('active');

@@ -130,7 +130,12 @@ class CartController extends Controller
 
         $cart->recalculateTotals();
         $cart->refresh();
-        
+
+        // Adding items can only make a coupon's conditions easier to satisfy,
+        // but a percentage discount amount still needs to track the new subtotal.
+        $this->revalidateCoupon($cart);
+        $cart->refresh();
+
         $trackingEvents = PixelTracker::addToCart($product, $quantity, $price);
 
         return response()->json([
@@ -170,52 +175,113 @@ class CartController extends Controller
         if ($cart) {
             $cart->recalculateTotals();
             $cart->refresh();
+
+            // Cart may have been touched from another tab/request since the coupon was applied
+            $this->revalidateCoupon($cart);
+            $cart->refresh();
         }
-        // dd($cart->toArray());
+
+        /*
+        |--------------------------------------------------------------------------
+        | Nudge Message (Add X more items to unlock a quantity-based coupon)
+        |--------------------------------------------------------------------------
+        */
+
+        $nudge = null;
+
+        if ($cart && $cart->items->isNotEmpty()) {
+
+            $subtotal = $cart->subtotal;
+            $totalQuantity = $cart->items()->sum('quantity');
+
+            $candidateCoupons = Coupon::where('status', 1)
+                ->where('visibility', 'public')
+                ->whereNotNull('minimum_order_quantity')
+                ->where(function ($q) {
+                    $q->whereNull('start_date')->orWhere('start_date', '<=', now());
+                })
+                ->where(function ($q) {
+                    $q->whereNull('end_date')->orWhere('end_date', '>=', now());
+                })
+                ->orderBy('minimum_order_quantity', 'asc')
+                ->get();
+
+            foreach ($candidateCoupons as $coupon) {
+
+                $remainingQty = $coupon->minimum_order_quantity - $totalQuantity;
+
+                $amountOk = !$coupon->minimum_order_amount || $subtotal >= $coupon->minimum_order_amount;
+
+                // Show nudge only when customer is exactly 1 item away
+                if ($remainingQty == 1 && $amountOk) {
+
+                    $discountText = $coupon->discount_type === 'percentage'
+                        ? $coupon->discount_value . '% flat discount'
+                        : '₹' . number_format($coupon->discount_value, 0) . ' flat discount';
+
+                    $nudge = [
+                        'message' => "Add 1 more item and get {$discountText}!",
+                        'code' => $coupon->code,
+                    ];
+
+                    break;
+                }
+            }
+        }
 
         return view(
             'front-pages.cart',
-            compact('cart')
+            compact('cart', 'nudge')
         );
     }
 
 
     public function remove($id)
-{
-    $item = CartItem::findOrFail($id);
+    {
+        $item = CartItem::findOrFail($id);
 
-    if (auth('customer')->check()) {
-        if ($item->cart->user_id != auth('customer')->id()) {
-            abort(403);
+        if (auth('customer')->check()) {
+            if ($item->cart->user_id != auth('customer')->id()) {
+                abort(403);
+            }
+        } else {
+            if ($item->cart->session_id != session()->getId()) {
+                abort(403);
+            }
         }
-    } else {
-        if ($item->cart->session_id != session()->getId()) {
-            abort(403);
+
+        $cart = $item->cart;
+
+        // capture before delete
+        $trackingEvents = \App\Services\Tracking\PixelTracker::removeFromCart(
+            $item->product,
+            $item->quantity,
+            $item->price
+        );
+
+        $item->delete();
+
+        $cart->recalculateTotals();
+        $cart->refresh();
+
+        $couponResult = $this->revalidateCoupon($cart);
+
+        if ($couponResult && $couponResult['removed']) {
+            $cart->recalculateTotals();
+            $cart->refresh();
         }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Item removed successfully',
+            'cart_total' => $cart->grand_total,
+            'cart_count' => $cart->items()->sum('quantity'),
+            'tracking_events' => $trackingEvents,
+            'coupon_removed' => $couponResult['removed'] ?? false,
+            'coupon_message' => $couponResult['message'] ?? null,
+            'discount' => $cart->discount,
+        ]);
     }
-
-    $cart = $item->cart;
-
-    // capture before delete
-    $trackingEvents = \App\Services\Tracking\PixelTracker::removeFromCart(
-        $item->product,
-        $item->quantity,
-        $item->price
-    );
-
-    $item->delete();
-
-    $cart->recalculateTotals();
-    $cart->refresh();
-
-    return response()->json([
-        'status' => true,
-        'message' => 'Item removed successfully',
-        'cart_total' => $cart->grand_total,
-        'cart_count' => $cart->items()->sum('quantity'),
-        'tracking_events' => $trackingEvents, // 👈 new
-    ]);
-}
 
     public function updateQuantity(Request $request)
     {
@@ -272,6 +338,13 @@ class CartController extends Controller
         $cart->recalculateTotals();
         $cart->refresh();
 
+        $couponResult = $this->revalidateCoupon($cart);
+
+        if ($couponResult && $couponResult['removed']) {
+            $cart->recalculateTotals();
+            $cart->refresh();
+        }
+
         $mrp = $item->variant->mrp ?? $item->product->mrp;
         $totalMrp = $mrp * $item->quantity;
 
@@ -282,6 +355,9 @@ class CartController extends Controller
             'total_mrp' => $totalMrp,
             'cart_total' => $cart->grand_total,
             'cart_count' => $cart->items()->sum('quantity'),  // ← header count ke liye
+            'coupon_removed' => $couponResult['removed'] ?? false,
+            'coupon_message' => $couponResult['message'] ?? null,
+            'discount' => $cart->discount,
         ]);
     }
 
@@ -349,27 +425,6 @@ class CartController extends Controller
             }
         }
 
-        $subtotal = $cart->items()->sum('total');
-
-        if (
-            $coupon->customer_type === 'new' &&
-            auth('customer')->check()
-        ) {
-
-            $hasPreviousOrder = \App\Models\Order::where(
-                'customer_id',
-                auth('customer')->id()
-            )->exists();
-
-            if ($hasPreviousOrder) {
-
-                return response()->json([
-                    'status' => false,
-                    'message' => 'This coupon is only valid for new customers.'
-                ]);
-            }
-        }
-
         /*
         |--------------------------------------------------------------------------
         | Usage Limit Per Customer
@@ -407,6 +462,27 @@ class CartController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'Minimum order amount not reached'
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Minimum Order Quantity Check
+        |--------------------------------------------------------------------------
+        */
+
+        $totalQuantity = $cart->items()->sum('quantity');
+
+        if (
+            $coupon->minimum_order_quantity &&
+            $totalQuantity < $coupon->minimum_order_quantity
+        ) {
+
+            $remainingQty = $coupon->minimum_order_quantity - $totalQuantity;
+
+            return response()->json([
+                'status' => false,
+                'message' => "Add {$remainingQty} more item" . ($remainingQty > 1 ? 's' : '') . " to unlock this coupon (minimum {$coupon->minimum_order_quantity} items required)."
             ]);
         }
 
@@ -470,6 +546,7 @@ class CartController extends Controller
             : Cart::where('session_id', session()->getId())->first();
 
         $subtotal = $cart ? $cart->subtotal : 0;
+        $totalQuantity = $cart ? $cart->items()->sum('quantity') : 0;
 
         $coupons = Coupon::where('status', 1)
             ->where('visibility', 'public')
@@ -482,9 +559,8 @@ class CartController extends Controller
                     ->orWhere('end_date', '>=', now());
             })
             ->get()
-            ->map(function ($coupon) use ($subtotal) {
+            ->map(function ($coupon) use ($subtotal, $totalQuantity) {
 
-                // Build a human-readable description
                 if ($coupon->discount_type === 'percentage') {
                     $desc = 'Get <strong>' . $coupon->discount_value . '% OFF</strong>';
 
@@ -501,14 +577,22 @@ class CartController extends Controller
                     $desc .= ' on any order.';
                 }
 
-                // Flag if cart doesn't meet minimum
-                $eligible = !$coupon->minimum_order_amount || $subtotal >= $coupon->minimum_order_amount;
+                if ($coupon->minimum_order_quantity) {
+                    $desc .= ' Minimum ' . $coupon->minimum_order_quantity . ' items required.';
+                }
+
+                $eligible =
+                    (!$coupon->minimum_order_amount || $subtotal >= $coupon->minimum_order_amount)
+                    &&
+                    (!$coupon->minimum_order_quantity || $totalQuantity >= $coupon->minimum_order_quantity);
 
                 return [
                     'code' => $coupon->code,
                     'description' => $desc,
                     'eligible' => $eligible,
                     'min_amount' => $coupon->minimum_order_amount,
+                    'min_quantity' => $coupon->minimum_order_quantity,
+                    'current_quantity' => $totalQuantity,
                 ];
             });
 
@@ -516,6 +600,63 @@ class CartController extends Controller
             'status' => true,
             'coupons' => $coupons,
         ]);
+    }
+
+    /**
+     * Re-check an applied coupon's conditions against the cart's current
+     * subtotal/quantity. Removes the coupon if it no longer qualifies,
+     * and re-syncs a percentage discount's amount if the subtotal shifted.
+     *
+     * Call this after any operation that changes cart contents (add,
+     * remove, quantity update) — right after recalculateTotals()/refresh().
+     */
+    private function revalidateCoupon(Cart $cart): ?array
+    {
+        if (!$cart->coupon_id) {
+            return null;
+        }
+
+        $coupon = Coupon::find($cart->coupon_id);
+
+        if (!$coupon || !$coupon->status) {
+            $cart->update(['coupon_id' => null, 'coupon_code' => null, 'discount' => 0]);
+
+            return [
+                'removed' => true,
+                'message' => 'Your applied coupon is no longer available and has been removed.',
+            ];
+        }
+
+        $subtotal = $cart->subtotal;
+        $totalQuantity = $cart->items()->sum('quantity');
+
+        $amountOk = !$coupon->minimum_order_amount || $subtotal >= $coupon->minimum_order_amount;
+        $qtyOk = !$coupon->minimum_order_quantity || $totalQuantity >= $coupon->minimum_order_quantity;
+
+        if (!$amountOk || !$qtyOk) {
+            $cart->update(['coupon_id' => null, 'coupon_code' => null, 'discount' => 0]);
+
+            return [
+                'removed' => true,
+                'message' => "Coupon \"{$coupon->code}\" was removed — your cart no longer meets its minimum requirement.",
+            ];
+        }
+
+        // Cart still qualifies — but a percentage discount amount needs to
+        // track the new subtotal (flat discounts don't change).
+        if ($coupon->discount_type === 'percentage') {
+            $discount = ($subtotal * $coupon->discount_value) / 100;
+
+            if ($coupon->maximum_discount && $discount > $coupon->maximum_discount) {
+                $discount = $coupon->maximum_discount;
+            }
+
+            if ((float) $discount !== (float) $cart->discount) {
+                $cart->update(['discount' => $discount]);
+            }
+        }
+
+        return ['removed' => false];
     }
 
 }

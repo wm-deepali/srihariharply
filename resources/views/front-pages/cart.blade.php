@@ -238,6 +238,41 @@
 <script>
     const CSRF = '{{ csrf_token() }}';
 
+    // ─── Coupon UI reset (shared) ──────────────────────────────────────────────
+    function handleCouponRevalidation(data) {
+        if (data.coupon_removed) {
+            const input = document.getElementById('coupon-code-input');
+            const discountRow = document.getElementById('summary-discount-row');
+            const removeBtn = document.getElementById('remove-coupon-btn');
+
+            if (input) {
+                input.value = '';
+                input.removeAttribute('readonly');
+            }
+
+            if (discountRow) {
+                discountRow.style.display = 'none';
+            }
+
+            if (removeBtn) {
+                removeBtn.outerHTML = '<button id="apply-coupon-btn" class="lp-btn" style="white-space: nowrap;">Apply</button>';
+                const newApplyBtn = document.getElementById('apply-coupon-btn');
+                newApplyBtn.addEventListener('click', function () {
+                    applyCouponCode(document.getElementById('coupon-code-input').value.trim().toUpperCase());
+                });
+            }
+
+            if (data.coupon_message) {
+                showToast(data.coupon_message, 'error');
+            }
+        }
+
+        if (typeof data.discount !== 'undefined') {
+            const discountEl = document.getElementById('summary-discount');
+            if (discountEl) discountEl.textContent = formatNum(data.discount);
+        }
+    }
+
     // ─── Quantity Update ──────────────────────────────────────────────────────
     document.querySelectorAll('.qty-btn').forEach(btn => {
         btn.addEventListener('click', function () {
@@ -260,11 +295,14 @@
                     .then(data => {
                         if (data.status) {
                             row.remove();
-                               fireTrackingEvents(data.tracking_events); 
+                            fireTrackingEvents(data.tracking_events);
                             updateCartCount(data.cart_count ?? null);
+                            handleCouponRevalidation(data);
 
                             if (data.cart_count === 0) {
                                 location.reload();
+                            } else {
+                                document.getElementById('summary-grand-total').textContent = '₹' + formatNum(data.cart_total);
                             }
                         }
                     });
@@ -295,6 +333,7 @@
                         document.getElementById('item-total-' + itemId).textContent = '₹' + formatNum(data.item_total);
                         document.getElementById('summary-grand-total').textContent = '₹' + formatNum(data.cart_total);
                         updateCartCount(data.cart_count ?? null);
+                        handleCouponRevalidation(data);
                     } else {
                         showToast(data.message, 'error');
                     }
@@ -318,10 +357,11 @@
                 .then(r => r.json())
                 .then(data => {
                     if (data.status) {
-                         fireTrackingEvents(data.tracking_events); 
+                        fireTrackingEvents(data.tracking_events);
                         document.getElementById('cart-item-' + itemId)?.remove();
                         document.getElementById('summary-grand-total').textContent = '₹' + formatNum(data.cart_total);
                         updateCartCount(data.cart_count ?? null);
+                        handleCouponRevalidation(data);
 
                         if (data.cart_count === 0) {
                             location.reload();

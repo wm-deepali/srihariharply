@@ -1,31 +1,24 @@
 @extends('layouts.user-auth-app')
 @section('content')
-
     <section class="login-fullscreen-section">
         <div class="login-card">
             <h1 class="login-title">LOGIN</h1>
-
             <div class="login-decorative-divider">
                 <img src="{{ asset('assets/images/login_card_innericon.png')}}" alt="La Pavone Emblem"
                     class="login-decorative-icon" onerror="this.style.display='none'">
             </div>
-
             <div class="mb-4 mt-0" id="guest-login-container">
                 <button type="button" id="btn-choice-guest" class="login-submit-btn w-100 " style="margin:0;">
                     Guest Login
                 </button>
             </div>
-
-
             <div class="align-items-center my-3 text-muted" id="guest-or-separator"
                 style="font-family:'Outfit',sans-serif;font-size:12px;letter-spacing:0.5px;display:flex !important">
                 <hr style="flex-grow:1;border-color:rgba(35,75,70,0.15);margin:0 10px;">
                 <span>OR</span>
                 <hr style="flex-grow:1;border-color:rgba(35,75,70,0.15);margin:0 10px;">
             </div>
-
             <form class="login-form" id="login-form">
-
                 <!-- Step 1: Enter Mobile or Email -->
                 <div id="step-input" class="form-step">
                     <div class="form-group mb-3">
@@ -34,21 +27,18 @@
                             required autocomplete="username">
                     </div>
                     <button type="button" id="btn-continue" class="login-submit-btn w-100 m-0">Continue</button>
-
                     <div class="d-flex align-items-center my-3 text-muted"
                         style="font-family:'Outfit',sans-serif;font-size:12px;letter-spacing:0.5px;">
                         <hr style="flex-grow:1;border-color:rgba(35,75,70,0.15);margin:0 10px;">
                         <span>OR</span>
                         <hr style="flex-grow:1;border-color:rgba(35,75,70,0.15);margin:0 10px;">
                     </div>
-
                     <button type="button" class="google-login-btn w-100 d-flex align-items-center justify-content-center"
                         onclick="window.location.href='{{ route('auth.google') }}'">
                         <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google Logo">
                         Login with Google
                     </button>
                 </div>
-
                 <!-- Step 2a: Enter OTP (mobile path) -->
                 <div id="step-otp" class="form-step" style="display:none;">
                     <p style="font-family:'Outfit',sans-serif;font-size:13px;color:#555;margin-bottom:12px;">
@@ -71,7 +61,6 @@
                         </a>
                     </div>
                 </div>
-
                 <!-- Step 2b: Enter Password (email path) -->
                 <div id="step-password" class="form-step" style="display:none;">
                     <p style="font-family:'Outfit',sans-serif;font-size:13px;color:#555;margin-bottom:12px;">
@@ -94,7 +83,6 @@
                         </a>
                     </div>
                 </div>
-
                 <!-- Step 3: Forgot Password – Enter Email -->
                 <div id="step-forgot-email" class="form-step" style="display:none;">
                     <h5 style="font-family:'Cinzel',serif;color:#1F5552;margin-bottom:8px;font-size:15px;">Reset Password
@@ -115,7 +103,6 @@
                         </a>
                     </div>
                 </div>
-
                 <!-- Step 4: Forgot Password – Enter OTP -->
                 <div id="step-forgot-otp" class="form-step" style="display:none;">
                     <p style="font-family:'Outfit',sans-serif;font-size:13px;color:#555;margin-bottom:12px;">
@@ -138,7 +125,6 @@
                         </a>
                     </div>
                 </div>
-
                 <!-- Step 5: Set New Password -->
                 <div id="step-new-password" class="form-step" style="display:none;">
                     <h5 style="font-family:'Cinzel',serif;color:#1F5552;margin-bottom:14px;font-size:15px;">Set New Password
@@ -155,7 +141,6 @@
                     </div>
                     <button type="button" id="btn-reset-password" class="login-submit-btn w-100 m-0">Reset Password</button>
                 </div>
-
                 <!-- Step: Guest Login – Enter Mobile -->
                 <div id="step-guest" class="form-step" style="display:none;">
                     <div class="form-group mb-3">
@@ -171,7 +156,6 @@
                         </a>
                     </div>
                 </div>
-
                 <!-- Step: Guest Login – Enter OTP -->
                 <div id="step-guest-otp" class="form-step" style="display:none;">
                     <p style="font-family:'Outfit',sans-serif;font-size:13px;color:#555;margin-bottom:12px;">
@@ -195,15 +179,12 @@
                         </a>
                     </div>
                 </div>
-
             </form>
-
             <p class="login-register-link mt-2">
                 Don't have an account? <a href="{{ route('user.register') }}">Register</a>
             </p>
         </div>
     </section>
-
     <script>
         const csrf = document.querySelector('meta[name="csrf-token"]').content;
         let currentEmail = '';
@@ -221,6 +202,16 @@
             return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
         }
 
+        // ── Safe wrapper: never let tracking break the login/redirect flow ──
+        function safeFireTrackingEvents(events) {
+            if (!events || (Array.isArray(events) && events.length === 0)) return;
+            try {
+                fireTrackingEvents(events);
+            } catch (err) {
+                console.error('Tracking events failed (ignored):', err);
+            }
+        }
+
         // ── Continue (detect mobile vs email) ──────────────────────────────
         document.getElementById('btn-continue').addEventListener('click', () => {
             const val = document.getElementById('login-input').value.trim();
@@ -231,7 +222,6 @@
             }
 
             if (isMobile(val)) {
-                // Mobile path: send OTP (works for both registered and new users)
                 fetch("{{ url('/user/send-login-otp') }}", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
@@ -250,7 +240,6 @@
                     .catch(() => Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.', confirmButtonColor: '#1F5552' }));
 
             } else if (isEmail(val)) {
-                // Email path → show password field
                 currentEmail = val;
                 document.getElementById('display-email').textContent = val;
                 showStep('step-password');
@@ -259,7 +248,6 @@
             }
         });
 
-        // Allow Enter key on input
         document.getElementById('login-input').addEventListener('keydown', e => {
             if (e.key === 'Enter') document.getElementById('btn-continue').click();
         });
@@ -274,7 +262,6 @@
                 .then(r => r.json())
                 .then(data => {
                     if (data.status && data.not_registered) {
-                        // New user: OTP verified, send to register page step-choice
                         Swal.fire({
                             icon: 'success',
                             title: 'OTP Verified',
@@ -283,8 +270,7 @@
                             showConfirmButton: false
                         }).then(() => window.location.href = data.redirect);
                     } else if (data.status) {
-                         fireTrackingEvents(data.tracking_events); // 👈 new
-                        // Existing user: logged in
+                        safeFireTrackingEvents(data.tracking_events); // 👈 fixed
                         Swal.fire({ icon: 'success', title: 'Login Successful', text: 'Redirecting...', timer: 1500, showConfirmButton: false })
                             .then(() => window.location.href = data.redirect);
                     } else {
@@ -333,8 +319,7 @@
                 .then(r => r.json())
                 .then(data => {
                     if (data.status) {
-                                        fireTrackingEvents(data.tracking_events); // 👈 new
-
+                        safeFireTrackingEvents(data.tracking_events); // 👈 fixed
                         Swal.fire({ icon: 'success', title: 'Login Successful', text: 'Redirecting...', timer: 1500, showConfirmButton: false })
                             .then(() => window.location.href = data.redirect);
                     } else {
@@ -344,7 +329,6 @@
                 .catch(() => Swal.fire({ icon: 'error', title: 'Error', text: 'Something went wrong. Please try again.', confirmButtonColor: '#1F5552' }));
         });
 
-        // Allow Enter on password
         document.getElementById('password').addEventListener('keydown', e => {
             if (e.key === 'Enter') document.getElementById('btn-login-password').click();
         });
@@ -488,7 +472,7 @@
                 return;
             }
 
-            fetch("{{ url('/user/send-login-otp') }}", {  // ← same existing route
+            fetch("{{ url('/user/send-login-otp') }}", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
                 body: JSON.stringify({ mobile: val })
@@ -515,7 +499,7 @@
                 return;
             }
 
-            fetch("{{ url('/user/verify-login-otp') }}", {  // ← same existing route
+            fetch("{{ url('/user/verify-login-otp') }}", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
                 body: JSON.stringify({ otp: otpVal })
@@ -523,7 +507,6 @@
                 .then(r => r.json())
                 .then(data => {
                     if (data.status && data.not_registered) {
-                        // Naya user → guest-login call karo directly
                         fetch("{{ url('/user/guest-login') }}", {
                             method: 'POST',
                             headers: { 'X-CSRF-TOKEN': csrf }
@@ -531,15 +514,13 @@
                             .then(r => r.json())
                             .then(guestData => {
                                 if (guestData.status) {
-                                    fireTrackingEvents(guestData.tracking_events); // 👈 new
+                                    safeFireTrackingEvents(guestData.tracking_events); // 👈 fixed
                                     Swal.fire({ icon: 'success', title: 'Welcome!', text: 'Logging you in...', timer: 1500, showConfirmButton: false })
                                         .then(() => window.location.href = guestData.redirect);
                                 }
                             });
                     } else if (data.status) {
-                                        fireTrackingEvents(data.tracking_events); // 👈 new
-
-                        // Existing user → seedha redirect
+                        safeFireTrackingEvents(data.tracking_events); // 👈 fixed
                         Swal.fire({ icon: 'success', title: 'Login Successful', text: 'Redirecting...', timer: 1500, showConfirmButton: false })
                             .then(() => window.location.href = data.redirect);
                     } else {
@@ -552,20 +533,16 @@
         // ── Guest Login: Resend OTP ──
         document.getElementById('btn-resend-guest-otp').addEventListener('click', e => {
             e.preventDefault();
-            document.getElementById('btn-guest-send-otp').click();  // ← same button reuse
+            document.getElementById('btn-guest-send-otp').click();
         });
 
-
-        // Allow Enter key on guest mobile input
         document.getElementById('guest-mobile').addEventListener('keydown', e => {
             if (e.key === 'Enter') document.getElementById('btn-guest-send-otp').click();
         });
 
-        // Allow Enter key on guest OTP input
         document.getElementById('guest-otp').addEventListener('keydown', e => {
             if (e.key === 'Enter') document.getElementById('btn-verify-guest-otp').click();
         });
-
 
         // ── Guest Login: Back from OTP ─────────────────────────────────────
         document.getElementById('btn-back-from-guest-otp').addEventListener('click', e => {
@@ -574,5 +551,4 @@
             showStep('step-guest');
         });
     </script>
-
 @endsection
