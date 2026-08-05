@@ -1003,9 +1003,14 @@
                                             value="{{ old('product_code') }}">
                                     </div>
                                     <div class="field-group">
+                                        <label class="field-label">HSN Code</label>
+                                        <input type="text" name="hsn_code" class="field-input"
+                                            value="{{ old('hsn_code') }}" placeholder="e.g. 6117">
+                                    </div>
+                                    <div class="field-group">
                                         <label class="field-label">Stock</label>
-                                        <input type="number" name="stock" class="field-input" value="{{ old('stock') }}"
-                                            placeholder="0">
+                                        <input type="number" name="stock" class="field-input"
+                                            value="{{ old('stock') }}" placeholder="0">
                                     </div>
 
                                     <div class="field-group">

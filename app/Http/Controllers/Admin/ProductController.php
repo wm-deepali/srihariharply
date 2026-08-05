@@ -120,6 +120,7 @@ class ProductController extends Controller
             'min_qty' => 'nullable|integer|min:1',
             'sku' => 'nullable|string|max:255',
             'product_code' => 'nullable|string|max:255',
+            'hsn_code' => 'nullable|string|max:255',
             'card_default' => 'nullable|image|max:2048',
             'card_hover' => 'nullable|image|max:2048',
             'banner_images' => 'nullable|array|max:10',
@@ -156,6 +157,7 @@ class ProductController extends Controller
                 'stock' => $request->stock !== null && $request->stock !== '' ? $request->stock : 0,
                 'min_qty' => $request->min_qty !== null && $request->min_qty !== '' ? $request->min_qty : 1,
                 'product_code' => $request->product_code,
+                'hsn_code' => $request->hsn_code,
                 'delivery_time' => $request->delivery_time,
 
                 'quality' => $request->has('quality'),
@@ -391,6 +393,7 @@ class ProductController extends Controller
             'min_qty' => 'nullable|integer|min:1',
             'sku' => 'nullable|string|max:255',
             'product_code' => 'nullable|string|max:255',
+            'hsn_code' => 'nullable|string|max:255',
             'card_default' => 'nullable|image|max:2048',
             'card_hover' => 'nullable|image|max:2048',
             'banner_images' => 'nullable|array|max:10',
@@ -427,6 +430,7 @@ class ProductController extends Controller
                 'stock' => $request->stock !== null && $request->stock !== '' ? $request->stock : 0,
                 'min_qty' => $request->min_qty !== null && $request->min_qty !== '' ? $request->min_qty : 1,
                 'product_code' => $request->product_code,
+                'hsn_code' => $request->hsn_code,
                 'delivery_time' => $request->delivery_time,
 
                 'quality' => $request->has('quality'),

@@ -133,8 +133,8 @@
                             <span>Free</span>
                         </div>
                         @if($cart->tax_amount > 0)
-                        <div class="summary-line">
-                            <span>
+                        <div class="summary-line" id="summary-tax-row">
+                            <span id="summary-tax-label">
                                 @if($cart->gst_type === 'cgst_sgst')
                                 GST (CGST {{ $cart->cgst_rate }}% + SGST {{ $cart->sgst_rate }}%)
                                 @else
@@ -144,9 +144,9 @@
                             <span id="summary-tax">₹{{ number_format($cart->tax_amount, 2) }}</span>
                         </div>
                         @else
-                        <div class="summary-line">
-                            <span>Taxes</span>
-                            <span>Calculated at checkout</span>
+                        <div class="summary-line" id="summary-tax-row">
+                            <span id="summary-tax-label">Taxes</span>
+                            <span id="summary-tax">Calculated at checkout</span>
                         </div>
                         @endif
                         <div class="summary-line coupon-applied-row" id="summary-discount-row"
@@ -238,6 +238,27 @@
 <script>
     const CSRF = '{{ csrf_token() }}';
 
+    // ─── Summary row updater (Subtotal + GST + Total) ──────────────────────────
+    function updateSummaryTotals(data) {
+        if (typeof data.cart_total !== 'undefined') {
+            document.getElementById('summary-grand-total').textContent = '₹' + formatNum(data.cart_total);
+        }
+        if (typeof data.cart_subtotal !== 'undefined') {
+            const subtotalEl = document.getElementById('summary-subtotal-2');
+            if (subtotalEl) subtotalEl.textContent = '₹' + formatNum(data.cart_subtotal);
+        }
+        if (typeof data.cart_tax !== 'undefined') {
+            const taxEl = document.getElementById('summary-tax');
+            if (taxEl) {
+                if (data.cart_tax > 0) {
+                    taxEl.textContent = '₹' + formatNum(data.cart_tax);
+                } else {
+                    taxEl.textContent = 'Calculated at checkout';
+                }
+            }
+        }
+    }
+
     // ─── Coupon UI reset (shared) ──────────────────────────────────────────────
     function handleCouponRevalidation(data) {
         if (data.coupon_removed) {
@@ -302,7 +323,7 @@
                             if (data.cart_count === 0) {
                                 location.reload();
                             } else {
-                                document.getElementById('summary-grand-total').textContent = '₹' + formatNum(data.cart_total);
+                                updateSummaryTotals(data);
                             }
                         }
                     });
@@ -331,7 +352,7 @@
                             minusBtn.innerHTML = '-';
                         }
                         document.getElementById('item-total-' + itemId).textContent = '₹' + formatNum(data.item_total);
-                        document.getElementById('summary-grand-total').textContent = '₹' + formatNum(data.cart_total);
+                        updateSummaryTotals(data);
                         updateCartCount(data.cart_count ?? null);
                         handleCouponRevalidation(data);
                     } else {
@@ -359,7 +380,7 @@
                     if (data.status) {
                         fireTrackingEvents(data.tracking_events);
                         document.getElementById('cart-item-' + itemId)?.remove();
-                        document.getElementById('summary-grand-total').textContent = '₹' + formatNum(data.cart_total);
+                        updateSummaryTotals(data);
                         updateCartCount(data.cart_count ?? null);
                         handleCouponRevalidation(data);
 

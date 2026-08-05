@@ -722,6 +722,7 @@
                                 <thead>
                                     <tr>
                                         <th>Product</th>
+                                        <th>HSN</th>
                                         <th>Qty</th>
                                         <th>Unit Price</th>
                                         <th>Subtotal</th>
@@ -764,22 +765,16 @@
                                                     </div>
                                                 </div>
                                             </td>
+                                            <td><span
+                                                    style="font-size:12px;color:var(--text-secondary)">{{ $item->product?->hsn_code ?? '—' }}</span>
+                                            </td>
                                             <td><span class="qty-chip">× {{ $item->quantity }}</span></td>
                                             <td><span class="price-cell">₹{{ number_format($item->price, 2) }}</span></td>
                                             <td><span class="subtotal-cell">₹{{ number_format($lineTotal, 2) }}</span></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="3"
-                                            style="text-align:right;color:var(--text-hint);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em">
-                                            Subtotal
-                                        </td>
-                                        <td><span class="subtotal-cell">₹{{ number_format($order->subtotal, 2) }}</span>
-                                        </td>
-                                    </tr>
-                                </tfoot>
+
                             </table>
                         </div>
 
@@ -1098,8 +1093,8 @@
                             </div>
                             <div class="info-row">
                                 <span class="info-label">Payment</span>
-                                <span
-                                    class="info-value">  {{ $order->payment_method ? (strtolower($order->payment_method) === 'cod' ? 'Cash on Delivery' : ucfirst($order->payment_method) . '/Online Payment') : '—' }}</span>
+                                <span class="info-value">
+                                    {{ $order->payment_method ? (strtolower($order->payment_method) === 'cod' ? 'Cash on Delivery' : ucfirst($order->payment_method) . '/Online Payment') : '—' }}</span>
                             </div>
                             @if($order->courier)
 

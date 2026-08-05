@@ -38,7 +38,7 @@
     <!-- Google Fonts: Cinzel for Luxury Headings -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
 
-   <!-- Custom CSS -->
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
 
     @include('layouts.tracking-head')
@@ -46,9 +46,37 @@
 </head>
 
 <body>
-        @include('layouts.tracking-body-top')
+    @include('layouts.tracking-body-top')
 
     <div class="la-pavone-wrapper">
+
+        {{-- Announcement Bar --}}
+        @php
+            $announcementBar = \App\Models\AnnouncementBar::where('is_active', 1)->first();
+        @endphp
+
+        @if($announcementBar && $announcementBar->message)
+            <div id="announcement-bar"
+                style="background: {{ $announcementBar->bg_color ?? '#1F5552' }}; color: {{ $announcementBar->text_color ?? '#FFFFFF' }};">
+                <div class="lp-container announcement-bar-inner">
+                    <p class="announcement-bar-text">
+                        {{ $announcementBar->message }}
+                        @if($announcementBar->link_text && $announcementBar->link_url)
+                            <a href="{{ $announcementBar->link_url }}" class="announcement-bar-link">
+                                {{ $announcementBar->link_text }}
+                            </a>
+                        @endif
+                    </p>
+
+                    @if($announcementBar->is_dismissible)
+                        <button type="button" class="announcement-bar-close" aria-label="Dismiss announcement"
+                            onclick="dismissAnnouncementBar({{ $announcementBar->id }})">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    @endif
+                </div>
+            </div>
+        @endif
 
         <!-- 1. STATIC NAVBAR -->
         <nav class="lp-navbar">
@@ -124,25 +152,25 @@
                     <!--<button aria-label="Search">-->
                     <!--    <img src="{{ asset('assets/images/menu_search.png')}}" alt="Search">-->
                     <!--</button>-->
-                    
-                    
-                  
-                   <a href="{{ route('user.wishlist') }}" class="cart-icon" aria-label="Wishlist">
+
+
+
+                    <a href="{{ route('user.wishlist') }}" class="cart-icon" aria-label="Wishlist">
                         <img src="{{ asset('assets/images/menu_wishlist.png')}}" alt="Wishlist">
-                          <span class="wishlist-count">
+                        <span class="wishlist-count">
                             {{ $wishlistCount }}
                         </span>
                     </a>
-                   
-                   <a href="{{ route('cart') }}" class="cart-icon" aria-label="Cart">
+
+                    <a href="{{ route('cart') }}" class="cart-icon" aria-label="Cart">
                         <img src="{{ asset('assets/images/menu_cart.png') }}" alt="Cart">
 
                         <span class="cart-count">
                             {{ $globalCartCount }}
                         </span>
                     </a>
-                    
-                     <a href="{{ route('user.login') }}" aria-label="Account">
+
+                    <a href="{{ route('user.login') }}" aria-label="Account">
                         <img src="{{ asset('assets/images/menu_user.png')}}" alt="Account">
                     </a>
                     <button class="mobile-nav-toggle" aria-label="Toggle Menu">
@@ -176,75 +204,130 @@
                     </a>
                 @endif
             </div>
-       <div class="footer-bottom">
+            <div class="footer-bottom">
                 <div class="lp-container">
                     <div class="footer-links-row">
                         <span class="footer-copyright">&copy;2026, La Pavone</span>
                         <div class="footer-nav">
                             <a href="{{ route('about-us') }}" class="footer-link">About Us</a>
                             <a href="{{ route('contact-us') }}" class="footer-link">Contact Us</a>
-                             @php
-                            $defaultCourier = \App\Models\Courier::where('is_default', 1)
-                                ->where('is_active', 1)
-                                ->first();
-                        @endphp
-                        
+                            @php
+                                $defaultCourier = \App\Models\Courier::where('is_default', 1)
+                                    ->where('is_active', 1)
+                                    ->first();
+                            @endphp
+
                             <a href="{{ route('faqs') }}" class="footer-link">FAQs</a>
-                             @if($defaultCourier?->website_url)
+                            @if($defaultCourier?->website_url)
                                 <a href="{{ $defaultCourier->website_url }}" target="_blank" rel="noopener noreferrer"
                                     class="footer-link">
                                     Track Order
                                 </a>
                             @endif
                             <!--<a href="{{ route('blogs') }}" class="">Blogs</a>-->
-                            
-                         
-                            
+
+
+
                             @foreach($footerPages as $page)
-                            <a href="{{ route('dynamic.page', \Illuminate\Support\Str::slug($page->page_name)) }}" class="footer-link">
-                                {{ $page->heading }}</a>
-                                
-                                
-                                
-                                   
-                         
+                                <a href="{{ route('dynamic.page', \Illuminate\Support\Str::slug($page->page_name)) }}"
+                                    class="footer-link">
+                                    {{ $page->heading }}</a>
+
+
+
+
+
                             @endforeach
-                            
-                            
+
+
                             <!--   <div class="footer-dropdown">-->
-                               
+
                             <!--             <a href="{{ route('blogs') }}" class="footer-dropdown-toggle" > <span>Blogs</span>  </a>-->
                             <!--    <div class="footer-dropdown-menu">-->
                             <!--        <a href="#" class="footer-dropdown-item">English</a>-->
                             <!--        <a href="#" class="footer-dropdown-item">Hindi</a>-->
                             <!--    </div>-->
                             <!--</div>-->
-                            
-                <div class="footer-blog-dropdown">
-    <a href="javascript:void(0)" class="footer-blog-toggle">
-        <span>
-            Blogs
-            <i class="fa-solid fa-chevron-down"></i>
-        </span>
-    </a>
 
-    <div class="footer-blog-menu">
-        <a href="{{ route('blogs') }}" class="footer-blog-item">English</a>
-        <a href="{{ route('blogs') }}" class="footer-blog-item">Hindi</a>
-    </div>
-</div>
+                            <div class="footer-blog-dropdown">
+                                <a href="javascript:void(0)" class="footer-blog-toggle">
+                                    <span>
+                                        Blogs
+                                        <i class="fa-solid fa-chevron-down"></i>
+                                    </span>
+                                </a>
+
+                                <div class="footer-blog-menu">
+                                    <a href="{{ route('blogs') }}" class="footer-blog-item">English</a>
+                                    <a href="{{ route('blogs') }}" class="footer-blog-item">Hindi</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="footer-address">
                         @if(!empty($general?->business_address))
-                        <p>{{ $general->business_address }}</p>
+                            <p>{{ $general->business_address }}</p>
                         @endif
                     </div>
                 </div>
             </div>
         </footer>
     </div>
-<style>
+    <style>
+        #announcement-bar {
+            width: 100%;
+            padding: 10px 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .announcement-bar-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .announcement-bar-text {
+            margin: 0;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        .announcement-bar-link {
+            color: inherit;
+            font-weight: 700;
+            text-decoration: underline;
+            margin-left: 8px;
+            white-space: nowrap;
+        }
+
+        .announcement-bar-close {
+            position: absolute;
+            right: 0;
+            background: none;
+            border: none;
+            color: inherit;
+            opacity: 0.75;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px;
+        }
+
+        .announcement-bar-close:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 576px) {
+            .announcement-bar-text {
+                font-size: 12px;
+                padding-right: 24px;
+                /* space for close button */
+            }
+        }
+
         .nav-icons {
             display: flex;
             align-items: center;
@@ -272,7 +355,7 @@
             height: 20px;
 
             border-radius: 50%;
-             background: #002a26;
+            background: #002a26;
             /* gold */
             color: #fff;
 
@@ -287,24 +370,23 @@
             border: 2px solid #fff;
         }
 
-       .wishlist-count {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #002a26;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
-    border: 2px solid #fff;
-}
-
+        .wishlist-count {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #002a26;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+            border: 2px solid #fff;
+        }
     </style>
     <!-- Bootstrap 5.3 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -312,25 +394,46 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Custom JS -->
     <script src="{{ asset('assets/js/main.js')}}"></script>
-    
+
     <!-- GSAP & ScrollTrigger -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-@include('layouts.tracking-body-bottom')
-<script>
-    // ── Fire tracking events returned from AJAX responses ──
-function fireTrackingEvents(events) {
-    if (!events || !Array.isArray(events) || events.length === 0) return;
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    @include('layouts.tracking-body-bottom')
+    <script>
+        // ── Fire tracking events returned from AJAX responses ──
+        function fireTrackingEvents(events) {
+            if (!events || !Array.isArray(events) || events.length === 0) return;
 
-    if (events.ga4 && typeof gtag === 'function') {
-        gtag('event', events.ga4.name, events.ga4.params);
-    }
+            if (events.ga4 && typeof gtag === 'function') {
+                gtag('event', events.ga4.name, events.ga4.params);
+            }
 
-    if (events.meta && typeof fbq === 'function') {
-        fbq('track', events.meta.name, events.meta.params);
-    }
-}
-</script>
+            if (events.meta && typeof fbq === 'function') {
+                fbq('track', events.meta.name, events.meta.params);
+            }
+        }
+        function dismissAnnouncementBar(id) {
+            const bar = document.getElementById('announcement-bar');
+            if (bar) bar.style.display = 'none';
+            sessionStorage.setItem('announcement_bar_dismissed_' + id, '1');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const bar = document.getElementById('announcement-bar');
+            if (!bar) return;
+
+            const closeBtn = bar.querySelector('.announcement-bar-close');
+            if (closeBtn) {
+                const onclickAttr = closeBtn.getAttribute('onclick') || '';
+                const match = onclickAttr.match(/dismissAnnouncementBar\((\d+)\)/);
+                const id = match ? match[1] : null;
+
+                if (id && sessionStorage.getItem('announcement_bar_dismissed_' + id)) {
+                    bar.style.display = 'none';
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>

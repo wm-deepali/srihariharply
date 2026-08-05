@@ -69,6 +69,7 @@ class Cart extends Model
 
         $taxAmount = 0;
         $grandTotal = $taxableAmount;
+        $displaySubtotal = $subtotal; // 👈 default — raw items sum, discount subtracted separately in blade
 
         $gstType = null;
 
@@ -137,6 +138,8 @@ class Cart extends Model
                 $grandTotal =
                     $taxableAmount + $taxAmount;
 
+                $displaySubtotal = $subtotal; // 👈 raw, as-is (GST added on top)
+
             } else {
 
                 $taxAmount =
@@ -145,6 +148,8 @@ class Cart extends Model
                     (100 + $gstPercentage);
 
                 $grandTotal = $taxableAmount;
+
+                $displaySubtotal = $subtotal - $taxAmount; // 👈 sirf tax hataya, discount nahi
             }
 
             if ($gstType === 'cgst_sgst') {
@@ -164,7 +169,7 @@ class Cart extends Model
 
         $this->update([
 
-            'subtotal' => round($subtotal, 2),
+            'subtotal' => round($displaySubtotal, 2),
             'discount' => round($discount, 2),
 
             'gst_type' => $gstType,

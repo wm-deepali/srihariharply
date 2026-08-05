@@ -119,10 +119,7 @@
                 <li><a href="{{ route('admin.faqs.index') }}">FAQ</a></li>
                 <li><a href="{{ route('admin.blogs.index') }}">Blog Management</a></li>
                 <li><a href="{{ route('admin.pages.index') }}">Dynamic Pages</a></li>
-                <!-- <li><a href="{{ route('admin.announcements.index') }}">Announcement Bar</a></li> -->
-                <!-- <li><a href="{{ route('admin.teams.index') }}">Manage Teams</a></li> -->
-                <!-- <li><a href="{{ route('admin.testimonials.index') }}">Testimonial & Feedback</a></li> -->
-                <!-- <li><a href="{{ route('admin.contact-branches.index') }}">Manage Office Branches</a></li> -->
+                <li><a href="{{ route('admin.announcements.edit') }}">Announcement Bar</a></li>
             </ul>
         </li>
 

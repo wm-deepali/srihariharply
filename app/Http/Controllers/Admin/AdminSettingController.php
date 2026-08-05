@@ -19,38 +19,38 @@ class AdminSettingController extends Controller
 {
     // ðŸ”¹ Show form
 
-   public function index(Request $request)
-{
-    $invoice_setting = InvoiceSetting::first();
-    $smtp = SmtpSetting::first();
-    $payment = PaymentSetting::first();
-    $general = Setting::first();
+    public function index(Request $request)
+    {
+        $invoice_setting = InvoiceSetting::first();
+        $smtp = SmtpSetting::first();
+        $payment = PaymentSetting::first();
+        $general = Setting::first();
 
-    $states = State::all();
+        $states = State::all();
 
-    $couriers = Courier::latest()->get();
+        $couriers = Courier::latest()->get();
 
-    $activeTab = $request->tab ?? 'general';
+        $activeTab = $request->tab ?? 'general';
 
-    $settings = SmsSetting::first();
+        $settings = SmsSetting::first();
 
-    $google_setting = GoogleSetting::current(); // 👈 new
+        $google_setting = GoogleSetting::current(); // 👈 new
 
-    return view(
-        'admin.admin-settings.index',
-        compact(
-            'invoice_setting',
-            'smtp',
-            'payment',
-            'general',
-            'states',
-            'couriers',
-            'activeTab',
-            'settings',
-            'google_setting' // 👈 new
-        )
-    );
-}
+        return view(
+            'admin.admin-settings.index',
+            compact(
+                'invoice_setting',
+                'smtp',
+                'payment',
+                'general',
+                'states',
+                'couriers',
+                'activeTab',
+                'settings',
+                'google_setting' // 👈 new
+            )
+        );
+    }
 
     // ðŸ”¹ Save settings
     public function invoiceSettingStore(Request $request)
@@ -401,44 +401,62 @@ class AdminSettingController extends Controller
                 'Courier deleted successfully.'
             );
     }
-    
+
     public function googleSettingStore(Request $request)
-{
-    $request->validate([
-        'gtm_container_id'   => 'nullable|string|max:50',
-        'ga4_measurement_id' => 'nullable|string|max:50',
-        'gads_conversion_id' => 'nullable|string|max:50',
-        'meta_pixel_id'      => 'nullable|string|max:50',
-        'gsc_verify_method'  => 'nullable|in:meta,file,dns',
-        'gads_currency'      => 'nullable|string|max:5',
-    ]);
+    {
+        $request->validate([
+            'gtm_container_id' => 'nullable|string|max:50',
+            'ga4_measurement_id' => 'nullable|string|max:50',
+            'gads_conversion_id' => 'nullable|string|max:50',
+            'meta_pixel_id' => 'nullable|string|max:50',
+            'gsc_verify_method' => 'nullable|in:meta,file,dns',
+            'gads_currency' => 'nullable|string|max:5',
+        ]);
 
-    $checkboxFields = [
-        'gtm_enabled', 'gtm_all_pages', 'gtm_datalayer_events',
-        'ga4_enabled',
-        'ga4_ev_view_item', 'ga4_ev_add_to_cart', 'ga4_ev_remove_from_cart',
-        'ga4_ev_begin_checkout', 'ga4_ev_add_payment', 'ga4_ev_purchase',
-        'ga4_ev_refund', 'ga4_ev_search', 'ga4_ev_login', 'ga4_ev_sign_up',
-        'gads_enabled', 'gads_enhanced_conversions', 'gads_send_order_value',
-        'gsc_auto_sitemap',
-        'meta_enabled',
-        'meta_ev_page_view', 'meta_ev_view_content', 'meta_ev_add_to_cart',
-        'meta_ev_add_to_wishlist', 'meta_ev_initiate_checkout', 'meta_ev_add_payment',
-        'meta_ev_purchase', 'meta_ev_lead', 'meta_ev_complete_reg', 'meta_ev_search',
-        'meta_advanced_matching',
-    ];
+        $checkboxFields = [
+            'gtm_enabled',
+            'gtm_all_pages',
+            'gtm_datalayer_events',
+            'ga4_enabled',
+            'ga4_ev_view_item',
+            'ga4_ev_add_to_cart',
+            'ga4_ev_remove_from_cart',
+            'ga4_ev_begin_checkout',
+            'ga4_ev_add_payment',
+            'ga4_ev_purchase',
+            'ga4_ev_refund',
+            'ga4_ev_search',
+            'ga4_ev_login',
+            'ga4_ev_sign_up',
+            'gads_enabled',
+            'gads_enhanced_conversions',
+            'gads_send_order_value',
+            'gsc_auto_sitemap',
+            'meta_enabled',
+            'meta_ev_page_view',
+            'meta_ev_view_content',
+            'meta_ev_add_to_cart',
+            'meta_ev_add_to_wishlist',
+            'meta_ev_initiate_checkout',
+            'meta_ev_add_payment',
+            'meta_ev_purchase',
+            'meta_ev_lead',
+            'meta_ev_complete_reg',
+            'meta_ev_search',
+            'meta_advanced_matching',
+        ];
 
-    $data = $request->except(['_token']);
+        $data = $request->except(['_token']);
 
-    foreach ($checkboxFields as $field) {
-        $data[$field] = $request->boolean($field);
+        foreach ($checkboxFields as $field) {
+            $data[$field] = $request->boolean($field);
+        }
+
+        GoogleSetting::updateOrCreate(['id' => 1], $data);
+
+        return redirect()
+            ->route('admin.admin-setting.index', ['tab' => 'tracking'])
+            ->with('success', 'Tracking settings saved successfully.');
     }
-
-    GoogleSetting::updateOrCreate(['id' => 1], $data);
-
-    return redirect()
-        ->route('admin.admin-setting.index', ['tab' => 'tracking'])
-        ->with('success', 'Tracking settings saved successfully.');
-}
 
 }

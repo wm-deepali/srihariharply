@@ -737,6 +737,7 @@
                     <tr>
                         <th style="width:36px;">#</th>
                         <th>Item Description</th>
+                        <th class="center" style="width:70px;">HSN</th>
                         <th class="center" style="width:70px;">Qty</th>
                         <th class="right" style="width:120px;">Unit Price</th>
                         <th class="right" style="width:120px;">Total</th>
@@ -757,6 +758,8 @@
                                 @if($item->sku ?? ($item->product->sku ?? null))
                                     <div class="item-sku">SKU: {{ $item->sku ?? $item->product->sku }}</div>
                                 @endif
+                            </td>
+                            <td class="center" style="font-size:12px;color:#555;">{{ $item->product?->hsn_code ?? '—' }}
                             </td>
                             <td class="center">{{ $item->quantity }}</td>
                             <td class="right">&#8377;{{ number_format($item->price, 2) }}</td>

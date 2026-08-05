@@ -19,6 +19,7 @@ class Product extends Model
 
         'sku',
         'product_code',
+        'hsn_code',
 
         'sub_title',
         'weight',

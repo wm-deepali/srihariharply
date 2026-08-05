@@ -8,6 +8,7 @@
         }
 
         .price-discounted {
+             display: block;
             /* color: #dc3545; */
             /* display: block; */
         }

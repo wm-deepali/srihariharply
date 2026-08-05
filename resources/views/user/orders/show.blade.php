@@ -97,6 +97,8 @@
                                                         <h4>{{ $item->product_name }}</h4>
                                                         <p>{{  $item->product?->weight }}ml</p>
                                                         <p>Qty: {{ $item->quantity }}</p>
+                                                        <p style="font-size:12px;color:#8c9196;">HSN:
+                                                            {{ $item->product?->hsn_code ?? '—' }}</p>
                                                     </div>
                                                     <div class="item-price">
                                                         ₹{{ number_format($item->price * $item->quantity, 2) }}
@@ -112,13 +114,15 @@
                                             <h3 class="details-card-title">Shipping Address</h3>
                                             <div class="address-display">
                                                 <p class="address-name">
-                                                    {{ $order->shipping_name ?? $order->customer->name }}</p>
+                                                    {{ $order->shipping_name ?? $order->customer->name }}
+                                                </p>
                                                 <p>{{ $order->address_line_1 }}</p>
                                                 @if ($order->address_line_2)
                                                     <p>{{ $order->address_line_2 }}</p>
                                                 @endif
                                                 <p>{{ $order->city?->name }}, {{ $order->state?->name }}
-                                                    {{ $order->pincode }}</p>
+                                                    {{ $order->pincode }}
+                                                </p>
                                                 <p>India</p>
                                                 @if ($order->phone)
                                                     <p>Phone: {{ $order->phone }}</p>
@@ -129,8 +133,8 @@
                                             <h3 class="details-card-title">Payment Info</h3>
                                             <div class="address-display">
                                                 <p class="address-name">
-    {{ strtolower($order->payment_method ?? 'cod') === 'cod' ? 'Cash on Delivery' : 'Online Payment' }}
-</p>
+                                                    {{ strtolower($order->payment_method ?? 'cod') === 'cod' ? 'Cash on Delivery' : 'Online Payment' }}
+                                                </p>
                                                 <p>Status:
                                                     <span
                                                         class="status-badge status-{{ strtolower($order->payment_status ?? 'pending') }}"
@@ -161,7 +165,7 @@
                                         </div>
                                         @if($order->discount > 0)
                                             <div class="summary-row" style="color: #2E7D32;">
-                                                <span> 
+                                                <span>
                                                     Discount
                                                     @if($order->coupon_code)
                                                         <span style="font-size:11px;">({{ $order->coupon_code }})</span>
@@ -170,17 +174,18 @@
                                                 <span>− ₹{{ number_format($order->discount, 2) }}</span>
                                             </div>
                                         @endif
-                          @if($order->tax_amount > 0)
-                                        <div class="summary-row">
-                                            <span>Tax @if($order->gst_type === 'igst')
-                                    <span style="font-size:11px;">(IGST {{ $order->igst_rate }}%)</span>
-                                @else
-                                    <span style="font-size:11px;">(CGST {{ $order->cgst_rate }}% + SGST {{ $order->sgst_rate }}%)</span>
-                                @endif</span>
-                                            <span>{{ $order->tax_amount > 0 ? '₹' . number_format($order->tax_amount, 2) : 'Inclusive' }}</span>
-                                        </div>
+                                        @if($order->tax_amount > 0)
+                                            <div class="summary-row">
+                                                <span>Tax @if($order->gst_type === 'igst')
+                                                    <span style="font-size:11px;">(IGST {{ $order->igst_rate }}%)</span>
+                                                @else
+                                                        <span style="font-size:11px;">(CGST {{ $order->cgst_rate }}% + SGST
+                                                            {{ $order->sgst_rate }}%)</span>
+                                                    @endif</span>
+                                                <span>{{ $order->tax_amount > 0 ? '₹' . number_format($order->tax_amount, 2) : 'Inclusive' }}</span>
+                                            </div>
 
-                                          @endif
+                                        @endif
                                         <div class="summary-divider"></div>
 
                                         <div class="summary-row total-row">
@@ -203,24 +208,24 @@
 
                                             {{-- Return within 7 days --}}
                                             <!-- @if ($order->status === 'delivered' && $order->created_at->diffInDays(now()) <= 7)
-                                                @php
-                                                    $existingReturn = $order->returns()
-                                                        ->whereIn('status', ['pending', 'approved', 'completed'])
-                                                        ->first();
-                                                @endphp
-                                                @if ($existingReturn)
-                                                    <p style="text-align:center; font-size:13px; color:#888; margin-top:10px;">
-                                                        Return request {{ $existingReturn->status }}
-                                                    </p>
-                                                @else
-                                                    <button class="lp-btn lp-btn-outline w-100 mt-2 btn-open-return"
-                                                            data-order-id="{{ $order->id }}"
-                                                            data-order-number="{{ $order->order_number }}"
-                                                            data-order-items="{{ $order->items->pluck('product_name', 'id')->toJson() }}">
-                                                        Return / Exchange
-                                                    </button>
-                                                @endif
-                                            @endif -->
+                                                    @php
+                                                        $existingReturn = $order->returns()
+                                                            ->whereIn('status', ['pending', 'approved', 'completed'])
+                                                            ->first();
+                                                    @endphp
+                                                    @if ($existingReturn)
+                                                        <p style="text-align:center; font-size:13px; color:#888; margin-top:10px;">
+                                                            Return request {{ $existingReturn->status }}
+                                                        </p>
+                                                    @else
+                                                        <button class="lp-btn lp-btn-outline w-100 mt-2 btn-open-return"
+                                                                data-order-id="{{ $order->id }}"
+                                                                data-order-number="{{ $order->order_number }}"
+                                                                data-order-items="{{ $order->items->pluck('product_name', 'id')->toJson() }}">
+                                                            Return / Exchange
+                                                        </button>
+                                                    @endif
+                                                @endif -->
                                         </div>
                                     </div>
                                 </div>

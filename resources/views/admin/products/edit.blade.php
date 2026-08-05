@@ -10,7 +10,7 @@
             display: none !important;
         }
 
-        
+
         :root {
             --bg: #f1f2f4;
             --surface: #ffffff;
@@ -1209,9 +1209,14 @@
                                             value="{{ old('product_code', $product->product_code) }}">
                                     </div>
                                     <div class="field-group" style="margin:0">
+                                        <label class="field-label">HSN Code</label>
+                                        <input type="text" name="hsn_code" class="field-input"
+                                            value="{{ old('hsn_code', $product->hsn_code) }}" placeholder="e.g. 6117">
+                                    </div>
+                                    <div class="field-group" style="margin:0">
                                         <label class="field-label">Stock</label>
                                         <input type="number" name="stock" class="field-input"
-                                            value="{{ old('stock', $product->stock) }}">
+                                            value="{{ old('stock', $product->stock) }}" placeholder="0">
                                     </div>
                                     <div class="field-group" style="margin:0">
                                         <label class="field-label">Weight (in ml)</label>
@@ -1343,7 +1348,7 @@
 <script>
     let selectedAttributeValues = @json($selectedAttributeValues);
     let existingVariants = @json($existingVariants);
-    
+
     let noteIndex = $('#notes-wrapper .note-row').length;
 
     $(document).on('click', '#add-note-row', function () {

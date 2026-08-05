@@ -275,6 +275,8 @@ class CartController extends Controller
             'status' => true,
             'message' => 'Item removed successfully',
             'cart_total' => $cart->grand_total,
+            'cart_subtotal' => $cart->subtotal,      // 👈 new
+            'cart_tax' => $cart->tax_amount,          // 👈 new
             'cart_count' => $cart->items()->sum('quantity'),
             'tracking_events' => $trackingEvents,
             'coupon_removed' => $couponResult['removed'] ?? false,
@@ -354,7 +356,9 @@ class CartController extends Controller
             'item_total' => $item->total,
             'total_mrp' => $totalMrp,
             'cart_total' => $cart->grand_total,
-            'cart_count' => $cart->items()->sum('quantity'),  // ← header count ke liye
+            'cart_subtotal' => $cart->subtotal,      // 👈 new
+            'cart_tax' => $cart->tax_amount,          // 👈 new
+            'cart_count' => $cart->items()->sum('quantity'),
             'coupon_removed' => $couponResult['removed'] ?? false,
             'coupon_message' => $couponResult['message'] ?? null,
             'discount' => $cart->discount,
