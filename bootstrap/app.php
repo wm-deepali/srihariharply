@@ -12,10 +12,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function ($middleware) {
         $middleware->alias([
-            'customer' => \App\Http\Middleware\CustomerAuth::class,
-            'maintenance.mode' => \App\Http\Middleware\MaintenanceModeMiddleware::class,
-            'admin.timeout' =>
-                \App\Http\Middleware\AdminSessionTimeout::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
