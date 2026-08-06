@@ -52,28 +52,35 @@
 
         {{-- Announcement Bar --}}
         @php
-            $announcementBar = \App\Models\AnnouncementBar::where('is_active', 1)->first();
+            $announcementBars = \App\Models\AnnouncementBar::where('is_active', 1)->get();
         @endphp
 
-        @if($announcementBar && $announcementBar->message)
-            <div id="announcement-bar"
-                style="background: {{ $announcementBar->bg_color ?? '#1F5552' }}; color: {{ $announcementBar->text_color ?? '#FFFFFF' }};">
-                <div class="lp-container announcement-bar-inner">
-                    <p class="announcement-bar-text">
-                        {{ $announcementBar->message }}
-                        @if($announcementBar->link_text && $announcementBar->link_url)
-                            <a href="{{ $announcementBar->link_url }}" class="announcement-bar-link">
-                                {{ $announcementBar->link_text }}
-                            </a>
-                        @endif
-                    </p>
+        @if($announcementBars->count())
+            <div id="announcementCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000"
+                data-bs-pause="false">
 
-                    @if($announcementBar->is_dismissible)
-                        <button type="button" class="announcement-bar-close" aria-label="Dismiss announcement"
-                            onclick="dismissAnnouncementBar({{ $announcementBar->id }})">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    @endif
+                <div class="carousel-inner">
+
+                    @foreach($announcementBars as $announcement)
+                        <div class="carousel-item {{ $loop->first ? 'active' : '' }}" style="background: {{ $announcement->bg_color ?? '#1F5552' }};
+                                color: {{ $announcement->text_color ?? '#fff' }};">
+
+                            <div class="lp-container announcement-bar-inner">
+
+                                <p class="announcement-bar-text mb-0">
+                                    {{ $announcement->message }}
+
+                                    @if($announcement->link_text && $announcement->link_url)
+                                        <a href="{{ $announcement->link_url }}" class="announcement-bar-link">
+                                            {{ $announcement->link_text }}
+                                        </a>
+                                    @endif
+                                </p>
+
+                            </div>
+                        </div>
+                    @endforeach
+
                 </div>
             </div>
         @endif
@@ -274,6 +281,22 @@
         </footer>
     </div>
     <style>
+        .carousel-item {
+            padding: 10px 0;
+            min-height: 42px;
+        }
+
+        .announcement-bar-inner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .announcement-bar-text {
+            margin: 0;
+        }
+
         #announcement-bar {
             width: 100%;
             padding: 10px 0;
@@ -413,25 +436,27 @@
             }
         }
         function dismissAnnouncementBar(id) {
-            const bar = document.getElementById('announcement-bar');
-            if (bar) bar.style.display = 'none';
+            const bar = document.getElementById('announcement-bar-' + id);
+
+            if (bar) {
+                bar.style.display = 'none';
+            }
+
             sessionStorage.setItem('announcement_bar_dismissed_' + id, '1');
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            const bar = document.getElementById('announcement-bar');
-            if (!bar) return;
 
-            const closeBtn = bar.querySelector('.announcement-bar-close');
-            if (closeBtn) {
-                const onclickAttr = closeBtn.getAttribute('onclick') || '';
-                const match = onclickAttr.match(/dismissAnnouncementBar\((\d+)\)/);
-                const id = match ? match[1] : null;
+            document.querySelectorAll('.announcement-bar').forEach(function (bar) {
 
-                if (id && sessionStorage.getItem('announcement_bar_dismissed_' + id)) {
+                const id = bar.id.replace('announcement-bar-', '');
+
+                if (sessionStorage.getItem('announcement_bar_dismissed_' + id)) {
                     bar.style.display = 'none';
                 }
-            }
+
+            });
+
         });
     </script>
 </body>

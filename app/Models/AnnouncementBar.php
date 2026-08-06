@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class AnnouncementBar extends Model
 {
     protected $fillable = [
+        'sort_order',
         'message',
         'link_text',
         'link_url',
@@ -17,7 +18,7 @@ class AnnouncementBar extends Model
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
+        'is_active'      => 'boolean',
         'is_dismissible' => 'boolean',
     ];
 }

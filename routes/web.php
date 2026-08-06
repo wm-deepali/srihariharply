@@ -308,10 +308,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::resource('category-attributes', CategoryAttributeController::class);
 
-        Route::get('settings/announcement-bar', [AnnouncementBarController::class, 'edit'])->name('announcements.edit');
-
-        Route::post('settings/announcement-bar', [AnnouncementBarController::class, 'update'])->name('announcements.update');
-
+        Route::get('announcements', [AnnouncementBarController::class, 'index'])->name('announcements.index');
+        Route::post('announcements', [AnnouncementBarController::class, 'store'])->name('announcements.store');
+        Route::put('announcements/{announcement}', [AnnouncementBarController::class, 'update'])->name('announcements.update');
+        Route::delete('announcements/{announcement}', [AnnouncementBarController::class, 'destroy'])->name('announcements.destroy');
+        Route::post('announcements/{announcement}/toggle', [AnnouncementBarController::class, 'toggleStatus'])->name('announcements.toggle');
 
         Route::post('coupons/{coupon}/share', [CouponController::class, 'share'])->name('coupons.share');
         Route::resource('coupons', CouponController::class);
@@ -343,6 +344,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Orders routes
         Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('orders/print-labels', [OrderController::class, 'printLabels'])->name('orders.print-labels');
+        Route::post('orders/print-labels/preview', [OrderController::class, 'previewLabels'])->name('orders.preview-labels');
+        Route::post('orders/print-labels/generate', [OrderController::class, 'generateLabels'])->name('orders.generate-labels');
         Route::get('orders/export', [OrderController::class, 'export'])->name('orders.export');
         Route::get('orders/{order}', [OrderController::class, 'show'])->name('orders.show');
         Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');

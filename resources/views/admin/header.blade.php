@@ -89,6 +89,7 @@
             <a href="#"><i class="fa-solid fa-cart-shopping"></i> Customer & Orders</a>
             <ul>
                 <li><a href="{{ route('admin.orders.index')}}">Manage Orders</a></li>
+                 <li><a href="{{ route('admin.orders.print-labels') }}">Print Label</a></li>
                 <li><a href="{{ route('admin.payments.index')}}">Payments & Transactions</a></li>
                 <!-- <li><a href="{{ route('admin.order-returns.index')}}">Manage Returns</a></li> -->
                 <!-- <li><a href="{{ route('admin.return-reasons.index') }}">Return Reasons</a></li> -->
@@ -119,7 +120,7 @@
                 <li><a href="{{ route('admin.faqs.index') }}">FAQ</a></li>
                 <li><a href="{{ route('admin.blogs.index') }}">Blog Management</a></li>
                 <li><a href="{{ route('admin.pages.index') }}">Dynamic Pages</a></li>
-                <li><a href="{{ route('admin.announcements.edit') }}">Announcement Bar</a></li>
+                <li><a href="{{ route('admin.announcements.index') }}">Announcement Bar</a></li>
             </ul>
         </li>
 

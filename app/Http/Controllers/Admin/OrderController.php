@@ -633,4 +633,92 @@ class OrderController extends Controller
     }
 
 
+
+    public function printLabels(Request $request)
+    {
+        $query = Order::with(['state', 'city', 'courier']);
+
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $query->whereBetween('created_at', [
+                $request->from_date . ' 00:00:00',
+                $request->to_date . ' 23:59:59',
+            ]);
+        }
+
+        $orders = $query->latest()->get();
+
+        return view('admin.orders.print-labels', compact('orders'));
+    }
+
+    public function previewLabels(Request $request)
+    {
+        $request->validate([
+            'order_ids' => 'required|array|min:1',
+            'order_ids.*' => 'exists:orders,id',
+            'label_size' => 'required|in:A4,A5,A6,A8',
+        ]);
+
+        $orders = Order::with(['state', 'city', 'courier'])
+            ->whereIn('id', $request->order_ids)
+            ->get();
+
+        $setting = InvoiceSetting::first(); // apna actual settings model daal dena
+
+        $grid = $this->labelGridConfig($request->label_size);
+
+        return view('admin.orders.label-preview', [
+            'orders' => $orders,
+            'setting' => $setting,
+            'labelSize' => $request->label_size,
+            'cols' => $grid['cols'],
+        ]);
+    }
+
+    public function generateLabels(Request $request)
+    {
+        $request->validate([
+            'order_ids' => 'required|array|min:1',
+            'order_ids.*' => 'exists:orders,id',
+            'label_size' => 'required|in:A4,A5,A6,A8',
+        ]);
+
+        $orders = Order::with(['state', 'city', 'courier'])
+            ->whereIn('id', $request->order_ids)
+            ->get();
+
+        $setting = InvoiceSetting::first();
+
+        $grid = $this->labelGridConfig($request->label_size);
+        $pages = $orders->chunk($grid['perPage']);
+
+        $pdf = PDF::loadView('admin.orders.label-pdf', [
+            'pages' => $pages,
+            'cols' => $grid['cols'],
+            'setting' => $setting,
+        ]);
+
+        $pdf->setPaper('a4', 'portrait'); // physical paper hamesha A4 hi hota hai
+
+        return $pdf->stream('order-labels-' . now()->format('Y-m-d-His') . '.pdf');
+    }
+
+    private function labelGridConfig(string $size): array
+    {
+        // ── Labels-per-A4-sheet config ──
+        // NOTE: Manager ne explicitly bola "A8 hai to A4 pe 2 print honge" —
+        // ye standard ISO paper-doubling se match nahi karta (jo A8=16 deta),
+        // isliye yahan business decision liya: chhota size bhi sirf 2 labels/sheet
+        // rakha hai (courier scan ke liye readable size zaroori hai).
+        // Agar manager confirm kare exact count, sirf yahan value change karo —
+        // baaki poora system (preview + PDF) automatically adjust ho jaayega.
+        return match ($size) {
+            'A4' => ['perPage' => 1, 'cols' => 1],
+            'A5' => ['perPage' => 2, 'cols' => 2],
+            'A6' => ['perPage' => 4, 'cols' => 2],
+            'A8' => ['perPage' => 2, 'cols' => 2], // manager ke exact instruction ke hisaab se
+            default => ['perPage' => 1, 'cols' => 1],
+        };
+    }
+
+
 }
