@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Providers;
-
+use App\Models\AboutUs;
+use App\Models\Logo;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -17,8 +19,14 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot()
+
+    public function boot(): void
     {
-       
+        View::composer('layouts.front', function ($view) {
+            $view->with([
+                'siteLogo' => Logo::where('status', 'active')->first(),
+                'footerAbout' => AboutUs::where('status', 'active')->first(),
+            ]);
+        });
     }
 }

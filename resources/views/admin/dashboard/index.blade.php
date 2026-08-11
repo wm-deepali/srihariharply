@@ -482,10 +482,178 @@
         </div>
       </div>
 
-   
+
+      <!-- KPI Row -->
+      <div class="row g-3 mb-3">
+        <div class="col-md-3 col-sm-6">
+          <div class="kpi-card">
+            <div class="kpi-icon purple"><i class="fa fa-box"></i></div>
+            <div class="kpi-label">Total Products</div>
+            <div class="kpi-value">{{ $stats['products'] }}</div>
+            <span class="kpi-badge up"><i class="fa fa-circle" style="font-size:6px"></i>
+              {{ $activeCounts['products'] }} active</span>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="kpi-card">
+            <div class="kpi-icon blue"><i class="fa fa-boxes-stacked"></i></div>
+            <div class="kpi-label">Categories</div>
+            <div class="kpi-value">{{ $stats['categories'] }}</div>
+            <span class="kpi-badge info">{{ $stats['brands'] }} brands</span>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="kpi-card">
+            <div class="kpi-icon green"><i class="fa fa-images"></i></div>
+            <div class="kpi-label">Gallery Images</div>
+            <div class="kpi-value">{{ $stats['galleryImages'] }}</div>
+            <span class="kpi-badge up">{{ $activeCounts['gallery'] }} active</span>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <div class="kpi-card">
+            <div class="kpi-icon amber"><i class="fa fa-comments"></i></div>
+            <div class="kpi-label">Testimonials</div>
+            <div class="kpi-value">{{ $stats['testimonials'] }}</div>
+            <span class="kpi-badge warn">{{ $activeCounts['testimonials'] }} published</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content snapshot banner (replaces revenue banner) -->
+      <div class="revenue-banner">
+        <div>
+          <div class="greet">Content Snapshot</div>
+          <div class="sub">{{ $stats['services'] }} homepage products · {{ $stats['sliders'] }} slides ·
+            {{ $stats['clients'] }} client logos
+          </div>
+        </div>
+        <div class="rev-num">
+          <span>{{ $stats['products'] + $stats['categories'] + $stats['galleryImages'] + $stats['testimonials'] + $stats['services'] + $stats['sliders'] + $stats['clients'] + $stats['brands'] }}</span>
+          <small>Total content items across the site</small>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <!-- Products added, last 6 months -->
+        <div class="col-lg-7">
+          <div class="cardx">
+            <h5>Products Added — Last 6 Months</h5>
+            <div class="chart-wrap">
+              <canvas id="productsChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Publish status by module -->
+        <div class="col-lg-5">
+          <div class="cardx">
+            <h5>Publish Status</h5>
+            @php
+              $rows = [
+                ['label' => 'Products', 'active' => $activeCounts['products'], 'total' => $stats['products'], 'color' => 'var(--accent)'],
+                ['label' => 'Categories', 'active' => $activeCounts['categories'], 'total' => $stats['categories'], 'color' => 'var(--blue)'],
+                ['label' => 'Gallery', 'active' => $activeCounts['gallery'], 'total' => $stats['galleryImages'], 'color' => 'var(--green)'],
+                ['label' => 'Testimonials', 'active' => $activeCounts['testimonials'], 'total' => $stats['testimonials'], 'color' => 'var(--amber)'],
+              ];
+            @endphp
+            @foreach($rows as $row)
+              @php $pct = $row['total'] > 0 ? round(($row['active'] / $row['total']) * 100) : 0; @endphp
+              <div class="progress-row">
+                <div class="progress-label">
+                  <span>{{ $row['label'] }}</span>
+                  <span>{{ $row['active'] }} / {{ $row['total'] }}</span>
+                </div>
+                <div class="progress">
+                  <div class="progress-bar" style="width:{{ $pct }}%; background:{{ $row['color'] }}"></div>
+                </div>
+              </div>
+            @endforeach
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <!-- Recent testimonials -->
+        <div class="col-lg-7">
+          <div class="cardx">
+            <h5>Recent Testimonials</h5>
+            <table class="dash-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Testimonial</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                @forelse($recentTestimonials as $t)
+                  <tr>
+                    <td>{{ $t->title ?: '—' }}</td>
+                    <td>{{ Str::limit(strip_tags($t->content), 50) }}</td>
+                    <td>
+                      <span class="status-pill {{ $t->status == 'active' ? 'delivered' : 'cancelled' }}">
+                        {{ ucfirst($t->status) }}
+                      </span>
+                    </td>
+                    <td>{{ $t->created_at->format('d M Y') }}</td>
+                  </tr>
+                @empty
+                  <tr>
+                    <td colspan="4" style="text-align:center; color:var(--text-hint); padding:24px 0;">No testimonials yet
+                    </td>
+                  </tr>
+                @endforelse
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Top categories -->
+        <div class="col-lg-5">
+          <div class="cardx">
+            <h5>Top Categories by Product Count</h5>
+            @forelse($topCategories as $i => $cat)
+              <div class="product-rank-item">
+                <div class="rank">{{ $i + 1 }}</div>
+                <div class="name">{{ $cat->title }}</div>
+                <div class="qty">{{ $cat->details_count }}</div>
+              </div>
+            @empty
+              <div style="color:var(--text-hint); font-size:13px; padding:12px 0;">No categories yet</div>
+            @endforelse
+          </div>
+        </div>
+      </div>
 
     </div><!-- /content-area -->
   </div><!-- /container-fluid -->
 </div><!-- /main-section -->
 
 @include('admin.footer')
+
+<script>
+  const productsChart = new Chart(document.getElementById('productsChart'), {
+    type: 'bar',
+    data: {
+      labels: {!! json_encode($monthly->pluck('label')) !!},
+      datasets: [{
+        label: 'Products Added',
+        data: {!! json_encode($monthly->pluck('total')) !!},
+        backgroundColor: '#303d89',
+        borderRadius: 6,
+        maxBarThickness: 40
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#f1f2f4' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+</script>

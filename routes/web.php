@@ -24,9 +24,14 @@ use App\Http\Controllers\FrontController;
 
 
 Route::controller(FrontController::class)->group(function () {
-
     Route::get('/', 'home')->name('home');
-
+    Route::get('/about', 'about')->name('about');
+    Route::get('/products', 'products')->name('products');
+    Route::get('/gallery', 'gallery')->name('gallery');
+    Route::get('/enquiry', 'enquiry')->name('enquiry');
+    Route::post('/enquiry', 'sendEnquiry')->name('enquiry.send');
+    Route::post('/testimonial', 'submitTestimonial')->name('testimonial.submit');
+    Route::get('/locate-us', 'locateUs')->name('locate-us');
 });
 
 

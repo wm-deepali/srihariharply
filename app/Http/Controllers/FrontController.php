@@ -2,631 +2,180 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Blog;
+use App\Models\Client;
+use App\Models\Gallery;
+use App\Models\OurService;
+use App\Models\ProductCategory;
+use App\Models\Slider;
+use App\Models\Testimonial;
+use App\Models\AboutUs;
 use App\Models\Brand;
-use App\Models\Category;
-use App\Models\ContactBranch;
-use App\Models\ContactEnquiry;
-use App\Models\DynamicPage;
-use App\Models\Faq;
-use App\Models\GiftingOccasion;
-use App\Models\Product;
+use App\Models\ProductDetail;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use App\Models\Team;
-use App\Models\GeneralEnquiry;
-use App\Models\SupplierEnquiry;
-use Illuminate\Support\Facades\Validator;
-use App\Models\HeroSection;
-use App\Models\BannerSection;
-use App\Models\TestimonialSection;
-use App\Models\AudioSection;
-use App\Models\Collection;
-use App\Models\Setting;
-use App\Models\Attribute;
-use App\Models\AttributeValue;
-use Illuminate\Support\Str;
+use App\Mail\EnquiryReceived;
+use App\Services\ThumbnailService;
+use Illuminate\Support\Facades\Mail;
 
 class FrontController extends Controller
 {
-
     public function home()
     {
-        $hero = HeroSection::firstOrCreate([], [
-            'heading_line1' => "LUXURY ISN'T LOUDER.",
-            'heading_line2' => "IT'S BETTER MADE",
-            'btn1_label' => 'Shop All',
-            'btn1_url' => '/shop',
-            'btn2_label' => 'New Arrivals',
-            'btn2_url' => '/shop',
-        ]);
+        $sliders = Slider::where('status', 'active')->latest()->get();
 
-        $banner = BannerSection::firstOrCreate([], [
-            'heading' => 'Rooted in culture. Designed for today.',
-        ]);
+        $services = OurService::where('status', 'active')->latest()->take(3)->get();
 
-        $testimonial = TestimonialSection::firstOrCreate([], [
-            'quote_line1' => 'A very beautiful way',
-            'quote_line2' => 'to start the day!',
-            'author' => 'Bilal Khilji',
-        ]);
-
-        $audio = AudioSection::firstOrCreate([], [
-            'heading' => 'THE FRAGRANCE OF RESTRAINT.',
-        ]);
-
-        $featuredCategories = Category::where('is_featured', 1)
-            ->whereNull('parent_id')
-            ->where('status', 1)
-            ->orderBy('sort_order')
-            ->take(2)
-            ->get();
-
-        $featuredProducts = Product::with([
-            'images' => fn($q) => $q->whereIn('image_type', ['default', 'hover'])
-        ])
-            ->where('status', 1)
-            ->latest()
-            ->take(8)
-            ->get();
-
-        return view('front-pages.home', compact(
-            'hero',
-            'banner',
-            'testimonial',
-            'audio',
-            'featuredCategories',
-            'featuredProducts'
-        ));
-    }
-
-    public function searchSuggestions(Request $request)
-    {
-        $query = trim($request->q);
-
-        if (!$query) {
-            return response()->json([]);
-        }
-
-        $products = Product::with('images')
-            ->visible()
-            ->where('name', 'LIKE', "%{$query}%")
-            ->take(5)
-            ->get([
-                'id',
-                'name',
-                'slug'
-            ])
-            ->map(function ($product) {
-                return [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'slug' => $product->slug,
-                    'image' => $product->display_image, // accessor
-                ];
-            });
-
-        // Parent Categories
-        $categories = Category::whereNull('parent_id')
-            ->where('status', 1)
-            ->where('name', 'LIKE', "%{$query}%")
-            ->take(5)
-            ->get([
-                'id',
-                'name',
-                'slug',
-                'image'
-            ]);
-
-        // Sub Categories
-        $subCategories = Category::with('parent')
-            ->whereNotNull('parent_id')
-            ->where('status', 1)
-            ->where('name', 'LIKE', "%{$query}%")
-            ->take(5)
+        $galleryCategories = Gallery::where('status', 'active')
+            ->orderBy('id')
             ->get()
-            ->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'slug' => $item->slug,
-                    'image' => $item->image,
-                    'parent_slug' => $item->parent?->slug,
-                ];
+            ->map(function ($category) {
+                $category->setRelation('previewDetails', $category->details()
+                    ->where('status', 'active')
+                    ->latest()
+                    ->take(2)
+                    ->get());
+                return $category;
             });
 
+        $productCategories = ProductCategory::where('status', 'active')->orderBy('id')->get();
 
+        $testimonials = Testimonial::where('status', 'active')->latest()->take(10)->get();
 
-        return response()->json([
-            'products' => $products,
-            'categories' => $categories,
-            'subcategories' => $subCategories,
-        ]);
-    }
+        $clients = Client::where('status', 'active')->latest()->get();
 
-    public function shopAll(Request $request)
-    {
-        $subcategories = Category::where('status', 1)
-            ->whereNull('parent_id')
-            ->orderBy('name')
-            ->get();
-
-        $query = Product::with([
-            'images' => function ($q) {
-                $q->whereIn('image_type', ['default', 'hover']);
-            }
-        ])->where('status', 1);
-
-        if ($request->filled('subcategory')) {
-            $query->where('category_id', $request->subcategory);
-        }
-
-        match ($request->get('sort')) {
-            'price-asc' => $query->orderBy('price', 'asc'),
-            'price-desc' => $query->orderBy('price', 'desc'),
-            default => $query->orderBy('id', 'desc'),
-        };
-
-        $products = $query->get();
-
-        $category = (object) [
-            'name' => 'Shop All',
-            'description' => null,
-            'horizontal_image' => null,
-        ];
-
-        $isShopAll = true; // ← flag
-
-        return view('front-pages.products', compact(
-            'category',
-            'subcategories',
-            'products',
-            'isShopAll'
+        return view('front.home', compact(
+            'sliders',
+            'services',
+            'galleryCategories',
+            'productCategories',
+            'testimonials',
+            'clients'
         ));
     }
 
-    public function category(Category $category, Request $request)
+    public function about()
     {
-        $subcategories = Category::where('parent_id', $category->id)
-            ->where('status', 1)
-            ->orderBy('name')
+        $about = AboutUs::where('status', 'active')->first();
+
+        $productCategories = ProductCategory::where('status', 'active')
+            ->orderBy('id')
             ->get();
 
-        $query = Product::with([
-            'images' => function ($q) {
-                $q->whereIn('image_type', ['default', 'hover']);
-            }
-        ])
-            ->where('category_id', $category->id)
-            ->where('status', 1);
+        $clients = Client::where('status', 'active')->latest()->get();
 
-        // Apply subcategory filter if passed
-        if ($request->filled('subcategory')) {
-            $query->where('subcategory_id', $request->subcategory);
-        }
-
-        // Apply sort
-        match ($request->get('sort')) {
-            'price-asc' => $query->orderBy('price', 'asc'),
-            'price-desc' => $query->orderBy('price', 'desc'),
-            default => $query->orderBy('id', 'desc'),
-        };
-
-        $products = $query->get();
-        $isShopAll = false;
-
-        return view('front-pages.products', compact('category', 'subcategories', 'products', 'isShopAll'))
-            ->with('activeSubcategory', $request->filled('subcategory') ? (string) $request->subcategory : null);
+        return view('front.about', compact('about', 'productCategories', 'clients'));
     }
 
-    public function collection(Collection $collection, Request $request)
+    public function products(Request $request)
     {
-        $query = $collection->products()
-            ->with([
-                'images' => function ($q) {
-                    $q->whereIn('image_type', ['default', 'hover']);
+        $categories = ProductCategory::where('status', 'active')
+            ->orderBy('id')
+            ->withCount([
+                'details' => function ($q) {
+                    $q->where('status', 'active');
                 }
             ])
-            ->where('status', 1);
-
-        match ($request->get('sort')) {
-            'price-asc' => $query->orderBy('price', 'asc'),
-            'price-desc' => $query->orderBy('price', 'desc'),
-            default => $query->orderBy('id', 'desc'),
-        };
-
-        $products = $query->get();
-
-        $category = (object) [
-            'name' => $collection->name,
-            'description' => $collection->description ?? null,
-            'horizontal_image' => $collection->image ?? null,
-        ];
-
-        $subcategories = collect();
-        $isShopAll = false;
-
-        return view('front-pages.products', compact('category', 'subcategories', 'products', 'isShopAll'))
-            ->with('activeSubcategory', null);
-    }
-
-
-   public function productDetail(Product $product)
-{
-    // Abort if product is not active
-    abort_if(!$product->status, 404);
-
-    // Load all image types
-    $product->load([
-        'images',
-        'category',
-        'subcategory',
-    ]);
-
-    // Similar products: same category, excluding current
-    $similarProducts = Product::with([
-        'images' => function ($q) {
-            $q->whereIn('image_type', ['default', 'hover']);
-        }
-    ])
-        ->where('id', '!=', $product->id)
-        ->where('status', 1)
-        ->latest()
-        ->take(8)
-        ->get();
-
-    $faqs = Faq::where('show_on_product_page', 1)
-        ->where('status', 1)
-        ->get();
-
-    $cartItem = null;
-
-    if (auth('customer')->check()) {
-        $cart = \App\Models\Cart::where('user_id', auth('customer')->id())->first();
-
-        if ($cart) {
-            $cartItem = $cart->items()
-                ->where('product_id', $product->id)
-                ->first();
-        }
-    } else {
-        $sessionCart = session('cart.items', []);
-
-        $cartItem = collect($sessionCart)
-            ->firstWhere('product_id', $product->id);
-    }
-
-    $viewItemScript = \App\Services\Tracking\PixelTracker::viewItemScript($product); // 👈 new
-
-    return view('front-pages.product-detail', compact('product', 'similarProducts', 'faqs', 'cartItem', 'viewItemScript'));
-}
-
-    public function faqs(Request $request)
-    {
-        $faqs = Faq::where('status', 1)->get();
-
-        return view('front-pages.faqs', compact('faqs'));
-    }
-
-    public function blogs(Request $request)
-    {
-        $lang = $request->get('lang', 'en');
-
-        $blogs = Blog::where('status', 1)
-            ->where('language', $lang)
-            ->latest()
             ->get();
 
-        return view('front-pages.blogs', compact('blogs', 'lang'));
+        $brands = Brand::where('status', 'active')->orderBy('title')->get();
+
+        $query = ProductDetail::with('brand')->where('status', 'active');
+
+        if ($request->filled('cat_id')) {
+            $query->where('product_category_id', $request->cat_id);
+        }
+
+        if ($request->filled('brand_id')) {
+            $query->where('brand_id', $request->brand_id);
+        }
+
+        $products = $query->orderBy('id')->paginate(18)->withQueryString();
+
+        return view('front.products', compact('categories', 'brands', 'products'));
     }
 
-    public function blogDetails($slug)
+    public function gallery()
     {
-        $blog = Blog::where('slug', $slug)
-            ->where('status', 1)
-            ->firstOrFail();
-
-        $relatedBlogs = Blog::where('status', 1)
-            ->where('language', $blog->language)
-            // ->where('id', '!=', $blog->id)
-            ->latest()
-            ->take(2)
-            ->get();
-
-        return view('front-pages.blog-details', compact('blog', 'relatedBlogs'));
-    }
-
-    public function contactUs()
-    {
-        $branches = ContactBranch::where('status', 1)->get();
-
-        return view('front-pages.contact-us', compact('branches'));
-    }
-
-    public function dynamicPage($slug)
-    {
-        // match slug with page_name
-        $page = DynamicPage::where('status', 1)
+        $categories = Gallery::where('status', 'active')
+            ->orderBy('id')
             ->get()
-            ->first(function ($p) use ($slug) {
-                return Str::slug($p->page_name) === $slug;
+            ->map(function ($category) {
+                $category->setRelation('activeDetails', $category->details()
+                    ->where('status', 'active')
+                    ->get());
+                return $category;
             });
 
-        if (!$page) {
-            abort(404);
-        }
-
-        return view(
-            'front-pages.dynamic-page'
-            ,
-            compact('page')
-        );
+        return view('front.gallery', compact('categories'));
     }
 
-    public function whyUs(Request $request)
+    public function locateUs()
     {
-        $brands = Brand::where('status', 1)->get();
-        return view('front-pages.why-us', compact('brands'));
+        return view('front.locate-us');
     }
 
-
-
-    public function gallery(Request $request)
+    public function enquiry()
     {
-        return view('front-pages.gallery');
+        $categories = ProductCategory::where('status', 'active')->orderBy('id')->get();
+        $brands = Brand::where('status', 'active')->orderBy('title')->get();
+        $products = ProductDetail::where('status', 'active')->get();
+
+        return view('front.enquiry', compact('categories', 'brands', 'products'));
     }
 
-
-
-    public function bulkEnquiry(Request $request)
-    {
-        $categories = Category::where('status', 1)->whereNull('parent_id')->get();
-
-        return view('front-pages.bulk-enquiry', compact('categories'));
-    }
-
-    public function aboutUs(Request $request)
-    {
-        $teams = Team::where('status', 1)
-            ->latest()
-            ->get();
-
-        return view('front-pages.about', compact('teams'));
-    }
-
-    public function submitContact(Request $request)
+    public function sendEnquiry(Request $request)
     {
         $request->validate([
-            'first_name' => [
-                'required',
-                'string',
-                'min:3',
-                'max:100',
-                'regex:/^[a-zA-Z\s]+$/'
-            ],
-
-            'last_name' => [
-                'required',
-                'string',
-                'min:2',
-                'max:100',
-                'regex:/^[a-zA-Z\s]+$/'
-            ],
-
-            'email' => [
-                'required',
-                'email:rfc,dns',
-                'max:255'
-            ],
-
-            'mobile' => [
-                'nullable',
-                'digits:10',
-                'regex:/^[6-9]\d{9}$/'
-            ],
-
-            'message' => [
-                'required',
-                'string',
-                'min:10',
-                'max:1000'
-            ],
-
-            'g-recaptcha-response' => [
-                'required'
-            ]
-
-        ], [
-
-            'first_name.required' => 'Please enter your first name.',
-            'first_name.min' => 'First name must be at least 3 characters.',
-            'first_name.max' => 'First name cannot exceed 100 characters.',
-            'first_name.regex' => 'First name should contain only letters and spaces.',
-
-            'last_name.required' => 'Please enter your last name.',
-            'last_name.min' => 'Last name must be at least 2 characters.',
-            'last_name.max' => 'Last name cannot exceed 100 characters.',
-            'last_name.regex' => 'Last name should contain only letters and spaces.',
-
-            'email.required' => 'Email is required.',
-            'email.email' => 'Please enter a valid email address.',
-
-            'mobile.digits' => 'Mobile number must be 10 digits.',
-            'mobile.regex' => 'Please enter a valid Indian mobile number.',
-
-            'message.required' => 'Message cannot be empty.',
-            'message.min' => 'Message must contain at least 10 characters.',
-            'message.max' => 'Message cannot exceed 1000 characters.',
-
-            'g-recaptcha-response.required' => 'Please verify captcha.',
-        ]);
-
-        // Verify reCAPTCHA
-        $captchaResponse = Http::asForm()->post(
-            'https://www.google.com/recaptcha/api/siteverify',
-            [
-                'secret' => env('RECAPTCHA_SECRET_KEY'),
-                'response' => $request->input('g-recaptcha-response'),
-                'remoteip' => $request->ip(),
-            ]
-        );
-
-        if (!($captchaResponse->json()['success'] ?? false)) {
-            return back()
-                ->withErrors([
-                    'g-recaptcha-response' => 'Captcha verification failed. Please try again.'
-                ])
-                ->withInput();
-        }
-
-       ContactEnquiry::create([
-    'first_name' => $request->first_name,
-    'last_name' => $request->last_name,
-    'email' => $request->email,
-    'mobile' => $request->mobile,
-    'message' => $request->message,
-]);
-
-return redirect()->back()->with(
-    'success',
-    'Thank you! Your enquiry has been submitted successfully.'
-)->with('fire_lead_event', 'Contact Us Form'); // 👈 new
-
-    }
-
-
-    public function submitGeneralEnquiry(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'company' => 'required|string|max:255',
-            'email' => 'required|email:rfc,dns|max:255',
-            'phone' => 'required|regex:/^[6-9]\d{9}$/',
-            'g-recaptcha-response' => 'required',
-        ], [
-            'name.required' => 'Please enter your name',
-            'company.required' => 'Company name is required',
-            'email.email' => 'Enter valid email address',
-            'phone.regex' => 'Enter valid 10-digit mobile number',
-            'g-recaptcha-response.required' => 'Please verify captcha',
+            'email' => 'required|email',
+            'phn_no' => 'required|digits:10',
+            'category' => 'nullable|exists:product_categories,id',
+            'brand' => 'nullable|string',
+            'product' => 'nullable|string',
+            'msg' => 'nullable|string',
         ]);
 
-        if ($validator->fails()) {
-            return back()
-                ->withErrors($validator, 'generalForm') // ✅ IMPORTANT
-                ->withInput();
-        }
+        $categoryName = $request->category
+            ? ProductCategory::find($request->category)?->title
+            : '';
 
-        // CAPTCHA
-        $response = Http::asForm()->post(
-            'https://www.google.com/recaptcha/api/siteverify',
-            [
-                'secret' => env('RECAPTCHA_SECRET_KEY'),
-                'response' => $request->input('g-recaptcha-response'),
-                'remoteip' => $request->ip()
-            ]
-        );
+        Mail::to('srihariharplyandhardware@gmail.com')->send(new EnquiryReceived([
+            'name' => $request->name,
+            'email' => $request->email,
+            'phn_no' => $request->phn_no,
+            'category_name' => $categoryName,
+            'brand_name' => $request->brand,
+            'product' => $request->product,
+            'msg' => $request->msg,
+        ]));
 
-        if (!($response->json()['success'] ?? false)) {
-            return back()
-                ->withErrors(['captcha' => 'Captcha verification failed'], 'generalForm')
-                ->withInput();
-        }
-
-      GeneralEnquiry::create([
-    'name' => $request->name,
-    'company' => $request->company,
-    'email' => $request->email,
-    'phone' => $request->phone,
-    'message' => $request->message,
-    'source' => $request->source,
-]);
-
-return back()
-    ->with('success_general', 'Enquiry submitted successfully!')
-    ->with('fire_lead_event', 'General Enquiry Form'); // 👈 new
+        return redirect()->route('enquiry')->with('enquiry_success', 'Thank you for contacting us. We will get back to you within 24 hours.');
     }
 
-
-    public function submitSupplierEnquiry(Request $request)
+    public function submitTestimonial(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|min:3|max:255',
-            'company' => 'required|string|min:2|max:255',
-            'email' => 'required|email:rfc,dns|max:255',
-            'phone' => 'required|digits:10|regex:/^[6-9]\d{9}$/',
-            'category_id' => 'required|exists:categories,id',
-            'quantity' => 'nullable|integer|min:1',
-            'delivery_date' => 'nullable|date|after_or_equal:today',
-            'city' => 'nullable|string|max:100',
-            'description' => 'nullable|string|max:1000',
-            'catalogue' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
-            'g-recaptcha-response' => 'required',
-        ], [
-            'name.required' => 'Please enter your name',
-            'company.required' => 'Company name is required',
-            'email.email' => 'Enter valid email address',
-            'phone.regex' => 'Enter valid 10-digit mobile number',
-            'category_id.required' => 'Please select category',
-            'catalogue.mimes' => 'File must be PDF, DOC, JPG or PNG',
-            'catalogue.max' => 'File must be under 2MB',
-            'g-recaptcha-response.required' => 'Please verify captcha',
+            'title' => 'required|string|max:255',
+            'email' => 'required|email',
+            'content' => 'required|string',
+            'image' => 'nullable|image|max:2048',
         ]);
 
-        // CAPTCHA
-        $captcha = Http::asForm()->post(
-            'https://www.google.com/recaptcha/api/siteverify',
-            [
-                'secret' => env('RECAPTCHA_SECRET_KEY'),
-                'response' => $request->input('g-recaptcha-response'),
-            ]
-        );
+        $data = [
+            'title' => $request->title,
+            'email' => $request->email,
+            'content' => $request->content,
+            'status' => 'active',
+        ];
 
-        if (!$captcha->json('success')) {
-
-            return back()
-                ->withErrors([
-                    'g-recaptcha-response' => 'Captcha failed'
-                ])
-                ->withInput();
+        if ($request->hasFile('image')) {
+            $stored = $request->file('image')->store('testimonial', 'public');
+            ThumbnailService::make($stored, 100, 100);
+            $data['image'] = $stored;
         }
 
-        // FILE UPLOAD
-        $filePath = null;
+        Testimonial::create($data);
 
-        if ($request->hasFile('catalogue')) {
-
-            $filePath = $request->file('catalogue')
-                ->store('catalogues', 'public');
-        }
-
-       SupplierEnquiry::create([
-    'name' => $request->name,
-    'company' => $request->company,
-    'email' => $request->email,
-    'phone' => $request->phone,
-    'category_id' => $request->category_id,
-    'quantity' => $request->quantity,
-    'delivery_date' => $request->delivery_date,
-    'description' => $request->description,
-    'city' => $request->city,
-    'catalogue' => $filePath,
-]);
-
-return back()
-    ->with('success', 'Bulk enquiry submitted successfully!')
-    ->with('fire_lead_event', 'Bulk Enquiry Form'); // 👈 new
-    
+        return redirect()->route('home')->with('testimonial_success', 'Thank you for your feedback!');
     }
-
-    public function occasions(Request $request)
-    {
-        $occasions = GiftingOccasion::where('status', 1)
-            ->latest()
-            ->get();
-
-        return view('front-pages.occasions', compact('occasions'));
-    }
-
 
 }

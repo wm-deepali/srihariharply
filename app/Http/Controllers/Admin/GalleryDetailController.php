@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Gallery;
 use App\Models\GalleryDetail;
+use App\Services\ThumbnailService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class GalleryDetailController extends Controller
 {
@@ -51,9 +51,12 @@ class GalleryDetailController extends Controller
         ]);
 
         foreach ($request->file('image') as $file) {
+            $stored = $file->store('gallery-details', 'public');
+            ThumbnailService::make($stored, 335, 285);
+
             GalleryDetail::create([
                 'gallery_id' => $request->gallery_id,
-                'image'      => $file->store('gallery-details', 'public'),
+                'image'      => $stored,
                 'status'     => 'active',
             ]);
         }
@@ -79,9 +82,12 @@ class GalleryDetailController extends Controller
 
         if ($request->hasFile('image')) {
             if ($galleryDetail->image) {
-                Storage::disk('public')->delete($galleryDetail->image);
+                ThumbnailService::delete($galleryDetail->image);
             }
-            $data['image'] = $request->file('image')->store('gallery-details', 'public');
+
+            $stored = $request->file('image')->store('gallery-details', 'public');
+            ThumbnailService::make($stored, 335, 285);
+            $data['image'] = $stored;
         }
 
         $galleryDetail->update($data);
@@ -92,7 +98,7 @@ class GalleryDetailController extends Controller
     public function destroy(GalleryDetail $galleryDetail)
     {
         if ($galleryDetail->image) {
-            Storage::disk('public')->delete($galleryDetail->image);
+            ThumbnailService::delete($galleryDetail->image);
         }
 
         $galleryDetail->delete();

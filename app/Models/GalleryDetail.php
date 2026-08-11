@@ -18,4 +18,17 @@ class GalleryDetail extends Model
     {
         return $this->image ? Storage::url($this->image) : null;
     }
+    
+    public function getThumbUrlAttribute(): ?string
+    {
+        if (!$this->image)
+            return null;
+
+        $thumbPath = dirname($this->image) . '/thumb/' . basename($this->image);
+
+        return \Storage::disk('public')->exists($thumbPath)
+            ? \Storage::url($thumbPath)
+            : $this->image_url;
+    }
+
 }

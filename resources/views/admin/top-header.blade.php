@@ -5,13 +5,13 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
-  <meta name="description" content="La Pavone a exlcusive store for Lucknowi Chikan kaari">
-  <meta name="keywords" content="La Pavone">
+  <meta name="description" content="Srii Harihar Ply a exlcusive store for Lucknowi Chikan kaari">
+  <meta name="keywords" content="Srii Harihar Ply">
   <meta name="author" content="Webmingo">
   <meta name="csrf-token" content="{{ csrf_token() }}" />
 
-  <title>Admin Dashboard | La Pavone</title>
-<link rel="icon" type="image/png" href="{{ asset('assets/images/android-chrome-512x512.png') }}">
+  <title>Admin Dashboard | Srii Harihar Ply</title>
+  <link rel="icon" type="image/png" href="{{ asset('assets/images/android-chrome-512x512.png') }}">
   <!--  <title>Krishna Chikan | @yield('title')</title> -->
 
 
@@ -36,13 +36,24 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
   </script>
-  
-<style>
-.main-section { display: flex !important; }
-.main-section #cssmenu { width: 280px !important; min-width: 280px !important; flex-shrink: 0 !important; }
-.main-section .app-content { flex: 1 !important; min-width: 0 !important; }
-</style>
-  
+
+  <style>
+    .main-section {
+      display: flex !important;
+    }
+
+    .main-section #cssmenu {
+      width: 280px !important;
+      min-width: 280px !important;
+      flex-shrink: 0 !important;
+    }
+
+    .main-section .app-content {
+      flex: 1 !important;
+      min-width: 0 !important;
+    }
+  </style>
+
 </head>
 
 <body>
@@ -52,8 +63,8 @@
     <div class="container-fluid">
       <div class="top-main-header d-flex align-items-center">
         <div class="admin-logo">
-    <img src="{{ asset('assets/images/lapavone-dashboard-logo.png') }}" style="height:20px;">
-</div>
+          <img src="{{ asset('admin/images/logo.png') }}" style="height:20px;">
+        </div>
         <div class="ml-auto">
 
           <div class="btn-group">

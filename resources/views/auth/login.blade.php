@@ -132,10 +132,10 @@
         <div class="login-left">
     
     <div class="logo-box">
-        <img src="{{ asset('assets/images/lapavone-login.webp') }}" alt="La Pavone">
+        <img src="{{ asset('assets/images/lapavone-login.webp') }}" alt="Srii Harihar Ply">
     </div>
 
-    <h2>La Pavone</h2>
+    <h2>Srii Harihar Ply</h2>
     <p>Luxury Perfume Collection</p>
 </div>
 

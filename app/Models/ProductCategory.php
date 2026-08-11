@@ -13,4 +13,9 @@ class ProductCategory extends Model
     {
         return $this->image ? Storage::url($this->image) : null;
     }
+
+    public function details()
+    {
+        return $this->hasMany(ProductDetail::class);
+    }
 }
