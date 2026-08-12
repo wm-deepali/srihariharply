@@ -220,7 +220,7 @@
         </div>
     </section>
 
-    @if($testimonials->count() > 0)
+    
         <section class="testimonials-section">
             <div class="auto-container">
                 <div class="ms-staff-carousel ms-round">
@@ -228,7 +228,7 @@
                     @if(session('testimonial_success'))
                         <div class="alert alert-success text-center">{{ session('testimonial_success') }}</div>
                     @endif
-
+@if($testimonials->count() > 0)
                     <div class="master-slider slider" id="testimonials-one">
                         @foreach($testimonials as $testimonial)
                             <div class="ms-slide">
@@ -244,13 +244,14 @@
                             </div>
                         @endforeach
                     </div>
+                       @endif
                     <div class="ms-staff-info" id="staff-info"></div>
                     <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#feedback">Send
                         Feedback</button>
                 </div>
             </div>
         </section>
-    @endif
+ 
 
     <div class="brand_area">
         <div class="container">

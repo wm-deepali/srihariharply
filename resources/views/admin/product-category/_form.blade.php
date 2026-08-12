@@ -13,7 +13,7 @@
 .crumb a { color: var(--accent); text-decoration: none; }
 .crumb span { margin: 0 5px; }
 .section-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-card); overflow: hidden; max-width: 720px; margin-bottom: 16px; }
-.section-card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); background: #fafafa; }
+.section-card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); background: #fafafa; display:flex; align-items:center; justify-content:space-between; }
 .section-card-header h5 { font-size: 13px; font-weight: 650; margin: 0; }
 .section-card-body { padding: 20px; }
 .field-group { margin-bottom: 16px; }
@@ -29,7 +29,14 @@
 .btn-primary-dash:disabled { opacity: .65; cursor: not-allowed; }
 .btn-secondary-dash { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); color: var(--text-primary) !important; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 20px; font-size: 13px; cursor: pointer; text-decoration: none !important; font-family: var(--font); }
 .btn-secondary-dash:hover { background: var(--bg); }
+.btn-add-row { display: inline-flex; align-items: center; gap: 6px; background: #eef0fb; color: var(--accent) !important; border: 1px solid #d3d8f2; border-radius: var(--radius-sm); padding: 6px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; text-decoration: none !important; font-family: var(--font); }
+.btn-add-row:hover { background: #e2e5f8; }
+.btn-remove-row { display: inline-flex; align-items: center; gap: 6px; background: #fdecec; color: var(--red) !important; border: 1px solid #f3c6c6; border-radius: var(--radius-sm); padding: 6px 14px; font-size: 12px; cursor: pointer; font-family: var(--font); }
 .action-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-card); padding: 14px 20px; display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; max-width: 720px; }
+.category-row { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 16px; background: #fafbfc; }
+.category-row:last-child { margin-bottom: 0; }
+.category-row-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.category-row-head span { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .03em; }
 </style>
 
 <div class="app-content content container-fluid">
@@ -60,29 +67,61 @@
             @csrf
             @isset($category) @method('PUT') @endisset
 
-            <div class="section-card">
-                <div class="section-card-header"><h5>Category Details</h5></div>
-                <div class="section-card-body">
-                    <div class="field-group">
-                        <label class="field-label">Title</label>
-                        <input type="text" name="title" class="field-input" value="{{ old('title', $category->title ?? '') }}" placeholder="e.g. Handmade Rugs" required>
-                    </div>
-                    <div class="field-group">
-                        <label class="field-label">Image</label>
-                        @isset($category)
+            @isset($category)
+                {{-- EDIT: single category --}}
+                <div class="section-card">
+                    <div class="section-card-header"><h5>Category Details</h5></div>
+                    <div class="section-card-body">
+                        <div class="field-group">
+                            <label class="field-label">Title</label>
+                            <input type="text" name="title" class="field-input" value="{{ old('title', $category->title) }}" placeholder="e.g. Handmade Rugs" required>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Image</label>
                             @if($category->image)
                                 <img src="{{ $category->image_url }}" class="current-thumb">
                             @endif
-                        @endisset
-                        <input type="file" name="image" class="field-input" style="height:auto;padding:8px 12px;">
-                        <div class="field-hint">Recommended size 430×400px. Leave blank to keep the current image.</div>
-                    </div>
-                    <div class="field-group">
-                        <label class="field-label">Content</label>
-                        <textarea name="content" id="content" class="field-textarea">{{ old('content', $category->content ?? '') }}</textarea>
+                            <input type="file" name="image" class="field-input" style="height:auto;padding:8px 12px;">
+                            <div class="field-hint">Recommended size 430×400px. Leave blank to keep the current image.</div>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Content</label>
+                            <textarea name="content" id="content" class="field-textarea">{{ old('content', $category->content) }}</textarea>
+                        </div>
                     </div>
                 </div>
-            </div>
+            @else
+                {{-- CREATE: multiple category rows --}}
+                <div class="section-card">
+                    <div class="section-card-header">
+                        <h5>Category Details</h5>
+                        <button type="button" class="btn-add-row" id="add-row-btn"><i class="fa fa-plus"></i> Add More</button>
+                    </div>
+                    <div class="section-card-body">
+                        <div id="rows-wrapper">
+                            <div class="category-row" data-row-index="0">
+                                <div class="category-row-head">
+                                    <span>Category #1</span>
+                                    <button type="button" class="btn-remove-row" style="visibility:hidden;"><i class="fa fa-times"></i> Remove</button>
+                                </div>
+                                <div class="field-group">
+                                    <label class="field-label">Title</label>
+                                    <input type="text" name="title[]" class="field-input" placeholder="e.g. Handmade Rugs" required>
+                                </div>
+                                <div class="field-group">
+                                    <label class="field-label">Image</label>
+                                    <input type="file" name="image[]" class="field-input" style="height:auto;padding:8px 12px;">
+                                    <div class="field-hint">Recommended size 430×400px.</div>
+                                </div>
+                                <div class="field-group">
+                                    <label class="field-label">Content</label>
+                                    <textarea name="content[]" class="field-textarea row-ckeditor" id="content_0"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endisset
 
             <div class="action-bar">
                 <a href="{{ route('admin.product-category.index') }}" class="btn-secondary-dash">Cancel</a>
@@ -96,7 +135,43 @@
 <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 <script>
     CKEDITOR.config.versionCheck = false;
-    CKEDITOR.replace('content');
+
+    @isset($category)
+        CKEDITOR.replace('content');
+    @else
+        let rowCounter = 1;
+        CKEDITOR.replace('content_0');
+
+        $(document).on('click', '#add-row-btn', function () {
+            let newIndex = rowCounter++;
+            let $clone = $('#rows-wrapper .category-row').first().clone();
+
+            $clone.attr('data-row-index', newIndex);
+            $clone.find('.category-row-head span').text('Category #' + (newIndex + 1));
+            $clone.find('.btn-remove-row').css('visibility', 'visible');
+            $clone.find('input[type=text]').val('');
+            $clone.find('input[type=file]').val('');
+
+            let $textarea = $clone.find('.row-ckeditor');
+            $textarea.attr('id', 'content_' + newIndex);
+            $textarea.val('');
+
+            $('#rows-wrapper').append($clone);
+            CKEDITOR.replace('content_' + newIndex);
+        });
+
+        $(document).on('click', '.btn-remove-row', function () {
+            let $row = $(this).closest('.category-row');
+            if ($('#rows-wrapper .category-row').length > 1) {
+                let editorId = $row.find('.row-ckeditor').attr('id');
+                if (CKEDITOR.instances[editorId]) {
+                    CKEDITOR.instances[editorId].destroy(true);
+                }
+                $row.remove();
+            }
+        });
+    @endisset
+
     $(document).on('submit', '.save-form', function () {
         let btn = $(this).find('.save-btn');
         btn.prop('disabled', true);

@@ -39,11 +39,16 @@ class GalleryController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['title' => 'required|string|max:255']);
+        $request->validate([
+            'title'   => 'required|array|min:1',
+            'title.*' => 'required|string|max:255',
+        ]);
 
-        Gallery::create(['title' => $request->title, 'status' => 'active']);
+        foreach ($request->title as $title) {
+            Gallery::create(['title' => $title, 'status' => 'active']);
+        }
 
-        return redirect()->route('admin.gallery.index')->with('success', 'Image category added successfully.');
+        return redirect()->route('admin.gallery.index')->with('success', 'Image category(ies) added successfully.');
     }
 
     public function edit(Gallery $gallery)

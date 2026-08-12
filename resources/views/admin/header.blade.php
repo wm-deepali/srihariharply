@@ -49,18 +49,10 @@
         </li>
 
         {{-- SLIDER MANAGEMENT --}}
-        <li class="has-sub {{ request()->routeIs('admin.slider.*') ? 'active' : '' }}">
-            <a href="#">
+        <li class="{{ request()->routeIs('admin.slider.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.slider.index') }}">
                 <i class="fa-solid fa-images"></i> Slider Management
             </a>
-            <ul>
-                <li class="{{ request()->routeIs('admin.slider.create') ? 'active' : '' }}">
-                    <a href="{{ route('admin.slider.create') }}">Add Slider</a>
-                </li>
-                <li class="{{ request()->routeIs('admin.slider.index') ? 'active' : '' }}">
-                    <a href="{{ route('admin.slider.index') }}">View All Slider</a>
-                </li>
-            </ul>
         </li>
 
         {{-- HOME PAGE MANAGEMENT --}}
@@ -69,20 +61,14 @@
                 <i class="fa-solid fa-house"></i> Home Page Mgmt
             </a>
             <ul>
-                <li class="{{ request()->routeIs('admin.our-services.create') ? 'active' : '' }}">
-                    <a href="{{ route('admin.our-services.create') }}">Add Our Product</a>
+                <li class="{{ request()->routeIs('admin.our-services.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.our-services.index') }}">Our Product</a>
                 </li>
-                <li class="{{ request()->routeIs('admin.our-services.index') ? 'active' : '' }}">
-                    <a href="{{ route('admin.our-services.index') }}">View All Our Product</a>
+                <li class="{{ request()->routeIs('admin.introduction.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.introduction.index') }}">Introduction</a>
                 </li>
-                <li class="{{ request()->routeIs('admin.introduction.index') ? 'active' : '' }}">
-                    <a href="{{ route('admin.introduction.index') }}">View / Edit Introduction</a>
-                </li>
-                <li class="{{ request()->routeIs('admin.client.create') ? 'active' : '' }}">
-                    <a href="{{ route('admin.client.create') }}">Add Client Gallery</a>
-                </li>
-                <li class="{{ request()->routeIs('admin.client.index') ? 'active' : '' }}">
-                    <a href="{{ route('admin.client.index') }}">View All Client Gallery</a>
+                <li class="{{ request()->routeIs('admin.client.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.client.index') }}">Client Gallery</a>
                 </li>
             </ul>
         </li>
@@ -100,23 +86,14 @@
                 <i class="fa-solid fa-boxes-stacked"></i> Product Category Mgmt
             </a>
             <ul>
-                <li class="{{ request()->routeIs('admin.product-category.create') ? 'active' : '' }}">
-                    <a href="{{ route('admin.product-category.create') }}">Add Category</a>
+                <li class="{{ request()->routeIs('admin.product-category.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.product-category.index') }}">Category</a>
                 </li>
-                <li class="{{ request()->routeIs('admin.product-category.index') ? 'active' : '' }}">
-                    <a href="{{ route('admin.product-category.index') }}">View All Category</a>
+                <li class="{{ request()->routeIs('admin.brand.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.brand.index') }}">Brand</a>
                 </li>
-                <li class="{{ request()->routeIs('admin.brand.create') ? 'active' : '' }}">
-                    <a href="{{ route('admin.brand.create') }}">Add Brand</a>
-                </li>
-                <li class="{{ request()->routeIs('admin.brand.index') ? 'active' : '' }}">
-                    <a href="{{ route('admin.brand.index') }}">View All Brand</a>
-                </li>
-                <li class="{{ request()->routeIs('admin.category-details.create') ? 'active' : '' }}">
-                    <a href="{{ route('admin.category-details.create') }}">Add Product</a>
-                </li>
-                <li class="{{ request()->routeIs('admin.category-details.index') ? 'active' : '' }}">
-                    <a href="{{ route('admin.category-details.index') }}">View All Product</a>
+                <li class="{{ request()->routeIs('admin.category-details.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.category-details.index') }}">Product</a>
                 </li>
             </ul>
         </li>
@@ -127,17 +104,11 @@
                 <i class="fa-solid fa-camera-retro"></i> Picture Gallery
             </a>
             <ul>
-                <li class="{{ request()->routeIs('admin.gallery.create') ? 'active' : '' }}">
-                    <a href="{{ route('admin.gallery.create') }}">Add Image Category</a>
+                <li class="{{ request()->routeIs('admin.gallery.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.gallery.index') }}">Image Category</a>
                 </li>
-                <li class="{{ request()->routeIs('admin.gallery.index') ? 'active' : '' }}">
-                    <a href="{{ route('admin.gallery.index') }}">View All Image Category</a>
-                </li>
-                <li class="{{ request()->routeIs('admin.gallery-details.create') ? 'active' : '' }}">
-                    <a href="{{ route('admin.gallery-details.create') }}">Add Image Gallery</a>
-                </li>
-                <li class="{{ request()->routeIs('admin.gallery-details.index') ? 'active' : '' }}">
-                    <a href="{{ route('admin.gallery-details.index') }}">View All Image Gallery</a>
+                <li class="{{ request()->routeIs('admin.gallery-details.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.gallery-details.index') }}">Image Gallery</a>
                 </li>
             </ul>
         </li>

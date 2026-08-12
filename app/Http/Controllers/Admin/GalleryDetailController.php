@@ -45,17 +45,18 @@ class GalleryDetailController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'gallery_id' => 'required|exists:galleries,id',
-            'image'      => 'required|array|min:1',
-            'image.*'    => 'image|max:2048',
+            'gallery_id'   => 'required|array|min:1',
+            'gallery_id.*' => 'required|exists:galleries,id',
+            'image'        => 'required|array|min:1',
+            'image.*'      => 'required|image|max:2048',
         ]);
 
-        foreach ($request->file('image') as $file) {
+        foreach ($request->file('image') as $index => $file) {
             $stored = $file->store('gallery-details', 'public');
             ThumbnailService::make($stored, 335, 285);
 
             GalleryDetail::create([
-                'gallery_id' => $request->gallery_id,
+                'gallery_id' => $request->gallery_id[$index],
                 'image'      => $stored,
                 'status'     => 'active',
             ]);

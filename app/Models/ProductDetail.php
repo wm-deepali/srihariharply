@@ -8,7 +8,14 @@ use Illuminate\Support\Facades\Storage;
 class ProductDetail extends Model
 {
     protected $fillable = [
-        'product_category_id', 'brand_id', 'title', 'url', 'image', 'content', 'status',
+        'product_category_id',
+        'brand_id',
+        'title',
+        'url',
+        'image',
+        'thumb',
+        'content',
+        'status',
     ];
 
     public function category()
@@ -23,6 +30,11 @@ class ProductDetail extends Model
 
     public function getImageUrlAttribute(): ?string
     {
-        return $this->image ? Storage::url($this->image) : null;
+        return $this->image ? Storage::disk('public')->url($this->image) : null;
+    }
+
+    public function getThumbUrlAttribute(): ?string
+    {
+        return $this->thumb ? Storage::disk('public')->url($this->thumb) : null;
     }
 }

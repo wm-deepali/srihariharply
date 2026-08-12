@@ -13,7 +13,7 @@
 .crumb a { color: var(--accent); text-decoration: none; }
 .crumb span { margin: 0 5px; }
 .section-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-card); overflow: hidden; max-width: 720px; margin-bottom: 16px; }
-.section-card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); background: #fafafa; }
+.section-card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); background: #fafafa; display:flex; align-items:center; justify-content:space-between; }
 .section-card-header h5 { font-size: 13px; font-weight: 650; margin: 0; }
 .section-card-body { padding: 20px; }
 .field-group { margin-bottom: 16px; }
@@ -21,12 +21,19 @@
 .field-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); letter-spacing: .03em; text-transform: uppercase; margin-bottom: 6px; }
 .field-input { width: 100%; height: 38px; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0 12px; font-size: 13.5px; outline: none; font-family: var(--font); }
 .field-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(48,61,137,.12); }
+.field-hint { font-size: 11.5px; color: var(--text-hint); margin-top: 5px; }
 .btn-primary-dash { display: inline-flex; align-items: center; gap: 6px; background: var(--accent); color: #fff !important; border: none; border-radius: var(--radius-sm); padding: 9px 20px; font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none !important; font-family: var(--font); }
 .btn-primary-dash:hover:not(:disabled) { background: #252f70; }
 .btn-primary-dash:disabled { opacity: .65; cursor: not-allowed; }
 .btn-secondary-dash { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); color: var(--text-primary) !important; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 20px; font-size: 13px; cursor: pointer; text-decoration: none !important; font-family: var(--font); }
 .btn-secondary-dash:hover { background: var(--bg); }
+.btn-add-row { display: inline-flex; align-items: center; gap: 6px; background: #eef0fb; color: var(--accent) !important; border: 1px solid #d3d8f2; border-radius: var(--radius-sm); padding: 6px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; text-decoration: none !important; font-family: var(--font); }
+.btn-add-row:hover { background: #e2e5f8; }
+.btn-remove-row { background: none; border: none; color: var(--red); font-size: 12px; cursor: pointer; padding: 4px 8px; }
 .action-bar { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: var(--shadow-card); padding: 14px 20px; display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; max-width: 720px; }
+.brand-row { display: flex; gap: 12px; align-items: flex-end; margin-bottom: 12px; }
+.brand-row:last-child { margin-bottom: 0; }
+.brand-row .field-group { flex: 1; margin-bottom: 0; }
 </style>
 
 <div class="app-content content container-fluid">
@@ -57,15 +64,37 @@
             @csrf
             @isset($brand) @method('PUT') @endisset
 
-            <div class="section-card">
-                <div class="section-card-header"><h5>Brand Details</h5></div>
-                <div class="section-card-body">
-                    <div class="field-group">
-                        <label class="field-label">Brand Name</label>
-                        <input type="text" name="title" class="field-input" value="{{ old('title', $brand->title ?? '') }}" placeholder="e.g. Acme Co." required>
+            @isset($brand)
+                {{-- EDIT: single brand --}}
+                <div class="section-card">
+                    <div class="section-card-header"><h5>Brand Details</h5></div>
+                    <div class="section-card-body">
+                        <div class="field-group">
+                            <label class="field-label">Brand Name</label>
+                            <input type="text" name="title" class="field-input" value="{{ old('title', $brand->title) }}" placeholder="e.g. Acme Co." required>
+                        </div>
                     </div>
                 </div>
-            </div>
+            @else
+                {{-- CREATE: multiple rows, add more as needed --}}
+                <div class="section-card">
+                    <div class="section-card-header">
+                        <h5>Brand Details</h5>
+                        <button type="button" class="btn-add-row" id="add-row-btn"><i class="fa fa-plus"></i> Add More</button>
+                    </div>
+                    <div class="section-card-body">
+                        <div id="rows-wrapper">
+                            <div class="brand-row">
+                                <div class="field-group">
+                                    <label class="field-label">Brand Name</label>
+                                    <input type="text" name="title[]" class="field-input" placeholder="e.g. Acme Co." required>
+                                </div>
+                                <button type="button" class="btn-remove-row" style="visibility:hidden;"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endisset
 
             <div class="action-bar">
                 <a href="{{ route('admin.brand.index') }}" class="btn-secondary-dash">Cancel</a>
@@ -82,4 +111,19 @@
         btn.prop('disabled', true);
         btn.html('<i class="fa fa-spinner fa-spin"></i> Processing...');
     });
+
+    @if(!isset($brand))
+    $(document).on('click', '#add-row-btn', function () {
+        let $clone = $('#rows-wrapper .brand-row').first().clone();
+        $clone.find('input[type=text]').val('');
+        $clone.find('.btn-remove-row').css('visibility', 'visible');
+        $('#rows-wrapper').append($clone);
+    });
+
+    $(document).on('click', '.btn-remove-row', function () {
+        if ($('#rows-wrapper .brand-row').length > 1) {
+            $(this).closest('.brand-row').remove();
+        }
+    });
+    @endif
 </script>

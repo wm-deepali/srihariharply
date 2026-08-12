@@ -41,24 +41,27 @@ class ProductCategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title'   => 'required|string|max:255',
-            'image'   => 'nullable|image|max:2048',
-            'content' => 'nullable|string',
+            'title'     => 'required|array|min:1',
+            'title.*'   => 'required|string|max:255',
+            'image.*'   => 'nullable|image|max:2048',
+            'content.*' => 'nullable|string',
         ]);
 
-        $data = [
-            'title'   => $request->title,
-            'content' => $request->content,
-            'status'  => 'active',
-        ];
+        foreach ($request->title as $index => $title) {
+            $data = [
+                'title'   => $title,
+                'content' => $request->content[$index] ?? null,
+                'status'  => 'active',
+            ];
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('product-category', 'public');
+            if ($request->hasFile('image.' . $index)) {
+                $data['image'] = $request->file('image')[$index]->store('product-category', 'public');
+            }
+
+            ProductCategory::create($data);
         }
 
-        ProductCategory::create($data);
-
-        return redirect()->route('admin.product-category.index')->with('success', 'Product category added successfully.');
+        return redirect()->route('admin.product-category.index')->with('success', 'Product category/categories added successfully.');
     }
 
     public function edit(ProductCategory $productCategory)

@@ -40,15 +40,18 @@ class BrandController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title'   => 'required|array|min:1',
+            'title.*' => 'required|string|max:255',
         ]);
 
-        Brand::create([
-            'title'  => $request->title,
-            'status' => 'active',
-        ]);
+        foreach ($request->title as $title) {
+            Brand::create([
+                'title'  => $title,
+                'status' => 'active',
+            ]);
+        }
 
-        return redirect()->route('admin.brand.index')->with('success', 'Brand added successfully.');
+        return redirect()->route('admin.brand.index')->with('success', 'Brand(s) added successfully.');
     }
 
     public function edit(Brand $brand)

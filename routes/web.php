@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\{
     GalleryController,
     GalleryDetailController,
     TestimonialController,
+    LogoutController
 };
 
 use Illuminate\Support\Facades\Route;
@@ -48,6 +49,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::resource('/profile-setting', ProfileSettingController::class);
         Route::post('/resetpassword', [ProfileSettingController::class, 'resetPassword'])->name('reset.password');
+        Route::get('/logout', [LogoutController::class, 'logout'])->name('logout');
 
         // Logo Management (single view, no add — same as old logo.php)
         Route::resource('/logo', LogoController::class)->except(['show']);
